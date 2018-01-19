@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=400 height=400 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var spriteSheet = new Image();
+spriteSheet.src = "ShurikenSheet.png";
+
+
+var numbImages = 6;
+var currImage = 0;
+var imageWidth = 200, imageHeight = 204;
+var numbRows = 2, numbCols = 3;
+var cycleCount = 0;
+
+var running = true;
+addEventListener("click", handleTheClick, true);
+
+function handleTheClick() {
+  running = !running;
+  //Optional reset of animation on click...un-comment to see
+ /* currImage = 0;
+  clearBackground();
+  drawSprite();
+ */
+}
+
+setInterval( animate, 50 ); //adjust timing...
+
+function animate() {
+  if(running) {
+    clearBackground();
+    drawSprite();
+  if(cycleCount==2 && currImage==5){
+    ctx.drawImage( spriteSheet, imageWidth , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+    clearBackground();
+    ctx.drawImage( spriteSheet, 0 , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+    running=false;
+    currImage = 0;
+    cycleCount = 0;
+  }
+  }
+}
+
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height);
+  
+}
+
+function drawSprite() {
+  var currRow = Math.floor(currImage / numbCols);
+  var currCol = currImage % numbCols;
+  if(currImage==5 && cycleCount<3){
+    currImage=1;
+    currRow=0;
+    currCol=1;
+    cycleCount++;
+  }
+  ctx.drawImage( spriteSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+  currImage++;
+  currImage %= numbImages;
+}
+
+</script>
+
+</body>
+</html>

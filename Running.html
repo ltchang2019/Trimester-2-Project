@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=400 height=400 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var spriteSheet = new Image();
+spriteSheet.src = "RunSheet.png";
+
+
+var numbImages = 6;
+var currImage = 1;
+var imageWidth = 130, imageHeight = 183;
+var numbRows = 2, numbCols = 5;
+
+var running = true;
+addEventListener("click", handleTheClick, true);
+
+function handleTheClick() {
+  running = !running;
+  //Optional reset of animation on click...un-comment to see
+ /* currImage = 0;
+  clearBackground();
+  drawSprite();
+ */
+}
+
+setInterval( animate, 120 );	//adjust timing...
+
+function animate() {
+  if(running) {
+    clearBackground();
+  	drawSprite();
+  }
+}
+
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height);
+}
+
+function drawSprite() {
+  var currRow = Math.floor(currImage / numbCols);
+  var currCol = currImage % numbCols;
+  if(currImage==6)
+      ctx.drawImage( spriteSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+  else
+    ctx.drawImage( spriteSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+
+  currImage++;
+  currImage %= numbImages;
+}
+
+</script>
+
+</body>
+</html>
