@@ -32,17 +32,21 @@ var cycleCount = 0;
 //FROM SHURIKEN ANIMATION
 var Tire1 = document.getElementById("T1");
 var angleA = 0.0, angleB = 0.0, angleC = 0.0;
-var xA = 90, yA = 60, widthA = 20, heightA = 15;
-var xB = 0, yB = 60, widthB = 20, heightB = 15;
-var xC = -90, yC = 60, widthC = 20, heightC = 15;
+var xA = 100, yA = 60, widthA = 20, heightA = 15;
+var xB = -50, yB = 60, widthB = 20, heightB = 15;
+var xC = -200, yC = 60, widthC = 20, heightC = 15;
 var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
 var counter = 0;
 var counter2 = 0;
 var ready = true;
 
 var running = true;
-addEventListener("click", start, false);
 
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        start();
+    }
+}
 
 function handleTheClick() {
   running = !running;
@@ -70,15 +74,15 @@ function animate() {
 }
 var toggleAnimation;
 var runAnimation = function(){
-    toggleAnimation = setInterval( animate, 50 );
+    toggleAnimation = setInterval( animate, 45 );
 }
 
 function Throw1() {
   
   ctx.save();
   ctx.translate( xA + widthA/2, yA + heightA/2 );
-  xA += 40;
-  angleA -= 20;
+  xA += 50;
+  angleA += 3;
   ctx.rotate( angleA );
   ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
   ctx.restore();
@@ -96,8 +100,8 @@ if(xB<90){
 
   ctx.save();
   ctx.translate( xB + widthB/2, yB + heightB/2 );
-  xB += 40;
-  angleB -= 20;
+  xB += 50;
+  angleB += 3;
   ctx.rotate( angleB );
   ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
   ctx.restore();
@@ -113,8 +117,8 @@ else{
 
 ctx.save();
 ctx.translate( xC + widthC/2, yC + heightC/2 );
-xC += 40;
-angleC -= 20;
+xC += 50;
+angleC += 3;
 ctx.rotate( angleC );
 ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
 ctx.restore();
@@ -126,11 +130,11 @@ else if(xC>1500){
 //  alert("he");
   ready=true;
   running=true;
-  xA=90;
-  xB=0;
-  xC=-90;
+  xA=100;
+  xB=-50;
+  xC=-200;
 }
-
+//WHY DO SHURIKENS SPEED UP ROTATIONS AFTER CERTAIN POINT?
 }
 
 function clearBackground() {
