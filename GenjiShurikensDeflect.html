@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=1500 height=500 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+//SPRITESHEET FOR THROWING ANIMATION
+var spriteSheet = new Image();
+spriteSheet.src = "ShurikenSheet.png";
+var deflectsheet = new Image();
+deflectsheet.src = "DeflectSheet.png";
+var thingy = new Image();
+thingy.src = "Draw.png";
+
+
+//SHURIKEN IMAGES
+var shuriken = new Image();
+shuriken.src = 'shuriken1.jpg';
+var shuriken2 = new Image();
+shuriken2.src = 'shuriken2.jpg';
+var shuriken3 = new Image();
+shuriken3.src = 'shuriken3.jpg';
+
+//FROM THROWING ANIMATION
+var numbImages = 6;
+var currImage = 0;
+var ThrowimageWidth = 200, ThrowimageHeight = 204;
+var DeflectimageWidth = 165, DeflectimageHeight = 205;
+var numbRows = 2, numbCols = 3;
+var cycleCount = 0;
+var frameNumb = 0;
+
+//FROM SHURIKEN ANIMATION
+var Tire1 = document.getElementById("T1");
+var angleA = 0.0, angleB = 0.0, angleC = 0.0;
+var xA = 100, yA = 60, widthA = 20, heightA = 15;
+var xB = -50, yB = 60, widthB = 20, heightB = 15;
+var xC = -200, yC = 60, widthC = 20, heightC = 15;
+var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
+var counter = 0;
+var counter2 = 0;
+var ready = true;
+var runAgain = true;
+
+var running = true;
+
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32){
+        startThrow();
+    }
+    else if (e.keyCode == 74){
+        startDeflect();
+    }
+}
+
+
+function handleTheClick() {
+  running = !running;
+}
+//START FUNCTIONS
+function startThrow(){
+  if(ready==true)
+    runThrow();
+}
+
+function startDeflect(){
+  if(runAgain==true){
+    runDeflect();
+  }
+}
+
+//ANIMATION FUNCTIONS
+function animateThrow() {
+	clearBackground();
+	Throw1();
+  drawSprite();
+
+  if(cycleCount==2 && currImage==5){
+    clearBackground();
+    ctx.drawImage( spriteSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, 0, 0, ThrowimageWidth, ThrowimageHeight );
+    running=false;
+    currImage = 0;
+    cycleCount = 0;
+  }
+}
+
+function animateDeflect() {
+  if(running) {
+    //DrawBlade();
+    clearBackground();
+    Deflect();
+  }
+}
+
+//TOGGLES
+var toggleThrow;
+var runThrow = function(){
+    toggleThrow = setInterval( animateThrow, 45 );
+}
+
+var toggleDeflect;
+var runDeflect = function(){
+    toggleDeflect = setInterval( animateDeflect, 90 );
+}
+
+function Throw1() {
+  
+  ctx.save();
+  ctx.translate( xA + widthA/2, yA + heightA/2 );
+  xA += 50;
+  angleA += 3;
+  ctx.rotate( angleA );
+  ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
+  ctx.restore();
+
+
+  
+if(xB<90){
+    widthB = 0;
+    heightB = 0;
+  }
+  else{
+    widthB = 20;
+    heightB = 15;
+  }
+
+  ctx.save();
+  ctx.translate( xB + widthB/2, yB + heightB/2 );
+  xB += 50;
+  angleB += 3;
+  ctx.rotate( angleB );
+  ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
+  ctx.restore();
+
+if(xC<90){
+  widthC = 0;
+  heightC = 0;
+  }
+else{
+  widthC = 20;
+  heightC = 15;
+}
+
+ctx.save();
+ctx.translate( xC + widthC/2, yC + heightC/2 );
+xC += 50;
+angleC += 3;
+ctx.rotate( angleC );
+ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
+ctx.restore();
+if(xC<1500){
+  ready=false;
+}
+else if(xC>1500){
+  clearInterval(toggleThrow);
+//  alert("he");
+  ready=true;
+  running=true;
+  xA=100;
+  xB=-50;
+  xC=-200;
+}
+//WHY DO SHURIKENS SPEED UP ROTATIONS AFTER CERTAIN POINT?
+}
+
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height);
+  
+}
+
+function drawSprite() {
+  var currRow = Math.floor(currImage / numbCols);
+  var currCol = currImage % numbCols;
+  if(currImage==5 && cycleCount<3){
+    currImage=1;
+    currRow=0;
+    currCol=0;
+    cycleCount++;
+  }
+  if(running==true){
+  ctx.drawImage( spriteSheet, currCol*ThrowimageWidth , currRow*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, 0, 0, ThrowimageWidth, ThrowimageHeight );
+  currImage++;
+  currImage %= numbImages;
+}
+  if(running==false){
+  	 ctx.drawImage( spriteSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, 0, 0, ThrowimageWidth, ThrowimageHeight );
+  }
+}
+
+////////DEFLECT STUFF
+function DrawBlade(){
+    ctx.drawImage( thingy, 0, 0, 165, 205, 0, 0, DeflectimageWidth, DeflectimageHeight );
+}
+
+function SheathBlade (){
+  ctx.drawImage( thingy, 170, 0, 165, 205, 0, 0, DeflectimageWidth, DeflectimageHeight );
+  frameNumb=0;
+}
+
+function Deflect() {
+  if (currImage==-1){
+    DrawBlade();
+    currImage++;
+    runAgain=false;
+  }
+  else {
+    if(frameNumb<18){
+      var currRow = Math.floor(currImage / numbCols);
+      var currCol = currImage % numbCols;
+      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth, DeflectimageHeight, 0, 0, DeflectimageWidth, DeflectimageHeight );
+      currImage++;
+      currImage %= numbImages;
+      frameNumb++;
+    }
+    else {
+      SheathBlade();
+      clearInterval(toggleDeflect);
+      runAgain=true;
+      currImage=-1;
+    }
+}
+}
+
+</script>
+
+</body>
+</html> 
