@@ -51,10 +51,10 @@ var runAgain = true;
 var running = true;
 
 document.body.onkeyup = function(e){
-    if(e.keyCode == 32){
+    if(e.keyCode == 32 && runAgain==true){
         startThrow();
     }
-    else if (e.keyCode == 74){
+    else if (e.keyCode == 74 && ready==true){
         startDeflect();
     }
 }
@@ -205,16 +205,17 @@ function SheathBlade (){
 }
 
 function Deflect() {
+  runAgain=false;
   if (currImage==-1){
     DrawBlade();
     currImage++;
-    runAgain=false;
+    
   }
   else {
     if(frameNumb<18){
       var currRow = Math.floor(currImage / numbCols);
       var currCol = currImage % numbCols;
-      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth, DeflectimageHeight, 0, 0, DeflectimageWidth, DeflectimageHeight );
+      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, 0, 0, DeflectimageWidth, DeflectimageHeight );
       currImage++;
       currImage %= numbImages;
       frameNumb++;
