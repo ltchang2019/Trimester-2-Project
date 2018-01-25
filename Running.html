@@ -10,34 +10,36 @@
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
-var spriteSheet = new Image();
-spriteSheet.src = "RunSheet.png";
+var runningSheet = new Image();
+runningSheet.src = "RunSheet.png";
 
 
-var numbImages = 6;
+var numbImages = 5;
 var currImage = 1;
 var imageWidth = 130, imageHeight = 183;
-var numbRows = 2, numbCols = 5;
-
+var numbRows = 1, numbCols = 5;
+var currCol = 0;
 var running = true;
-addEventListener("click", handleTheClick, true);
+addEventListener("click", startRun, true);
 
 function handleTheClick() {
   running = !running;
-  //Optional reset of animation on click...un-comment to see
- /* currImage = 0;
-  clearBackground();
-  drawSprite();
- */
 }
 
-setInterval( animate, 120 );	//adjust timing...
+function startRun(){
+  runRun();
+}
 
-function animate() {
-  if(running) {
+var toggleRun;
+  var runRun = function(){
+  toggleRun = setInterval( animateRun, 110 );
+}
+
+function animateRun() {
+  //if(running) {
     clearBackground();
-  	drawSprite();
-  }
+  	drawRun();
+ // }
 }
 
 function clearBackground() {
@@ -45,18 +47,21 @@ function clearBackground() {
   ctx.fillRect( 0, 0, canvas.width, canvas.height);
 }
 
-function drawSprite() {
-  var currRow = Math.floor(currImage / numbCols);
-  var currCol = currImage % numbCols;
-  if(currImage==6)
-      ctx.drawImage( spriteSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
-  else
-    ctx.drawImage( spriteSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
-
-  currImage++;
-  currImage %= numbImages;
+function drawRun() {
+  var currRow = 0;
+  
+   if(currImage<=5&&currCol<5){
+    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+      currCol++;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currCol=0;
+    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+    currCol++;
+  }
 }
-
 </script>
 
 </body>
