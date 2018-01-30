@@ -11,7 +11,7 @@ var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
 var runningSheet = new Image();
-runningSheet.src = "RunSheet.png";
+runningSheet.src = "RunSheetRight.png";
 
 
 var numbImages = 5;
@@ -36,10 +36,8 @@ var toggleRun;
 }
 
 function animateRun() {
-  //if(running) {
     clearBackground();
   	drawRun();
- // }
 }
 
 function clearBackground() {
@@ -62,6 +60,8 @@ function drawRun() {
     currCol++;
   }
 }
+
+
 </script>
 
 </body>

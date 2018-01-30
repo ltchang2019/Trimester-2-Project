@@ -50,23 +50,11 @@ var ready = true;
 var runAgain = true;
 var running = true;
 
-//GENJI VARIABLES
+//POSITION VARIABLES
 var genjiX = 0;
 var genjiY = 0;
-currRightRunCol = 0;
-GenjiImageWidth = 130;
-GenjiImageHeight = 183;
-
-RightRunning=false;
-
-//STATES
-var bottom = 1;
-var right = 2;
-var top = 3;
-var left = 4;
-var CurrentState = top;
-
-addEventListener("keydown", handleKey, false);
+var currRunCol = 0;
+var currCol;
 
 document.body.onkeyup = function(e){
     if(e.keyCode == 32 && runAgain==true){
@@ -133,13 +121,8 @@ var runDeflect = function(){
 }
 
 var toggleRun;
-  var runRightRun = function(){
-  toggleRun = setInterval( drawSprite, 100 );
-}
-
-function drawSprite(){
-  clearBackground();
-  drawForwardSprite();
+  var runRun = function(){
+  toggleRun = setInterval( animateRun, 110 );
 }
 
 
@@ -147,8 +130,8 @@ function drawSprite(){
 function handleKey(event) {
   var key = event.key;
   if(key == 'w') {
-    genjiY-=10;
-    
+    genjiY-=20;
+    CurrentState=left;
     // if(Counter1<1){
     //   runAnimation();
     //   Counter1++;
@@ -156,6 +139,7 @@ function handleKey(event) {
   }
   else if(key == 's') {
     genjiY+=20;
+    CurrentState=right;
     // if(Counter2<1){
     //   runAnimation();
     //   Counter2++;
@@ -163,18 +147,15 @@ function handleKey(event) {
   }
   else if(key == 'a') {
     genjiX-=20;
+    CurrentState=bottom;
     // if(Counter3<1){
     //   runAnimation();
     //   Counter3++;
     // }
   }
   else if(key == 'd') {
-    genjiX+=15;
-    if(RightRunning==false)
-      runRightRun();
-    else{
-
-    }
+    genjiX+=20;
+    CurrentState=top;
     // if(Counter4<1){
     //   runAnimation();
     //   Counter4++;
@@ -185,35 +166,24 @@ function handleKey(event) {
 
 
 //ANIMATE RUN
-function drawForwardSprite(){
-  //NEED TO FIX WEIRD SPRITE MOVEMENT!!!!!!
-  //if(keydown==true){
-    ctx.drawImage(runningSheet, currRightRunCol*GenjiImageWidth, 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY, GenjiImageWidth, GenjiImageHeight);
-    currRightRunCol++;
-    if(currRightRunCol>=5){
-      currRightRunCol=0;
-    }
-    RightRunning=true;
-   // }
-  // if(keydown==false){
-  //   clearInterval(toggleRun);
-  // }
-
+function animateRun() {
+    clearBackground();
+    drawRun();
 }
 
 function drawRun() {
   var currRow = 0;
   
-   if(currImage<=5&&currCol<5){
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
-      currCol++;
+   if(currImage<=5&&currRunCol<5){
+    ctx.drawImage( runningSheet, currRunCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      currRunCol++;
       currImage++;
     }
   else{
     currImage=1;
-    currCol=0;
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiX, imageWidth, imageHeight );
-    currCol++;
+    currRunCol=0;
+    ctx.drawImage( runningSheet, currRunCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiX, imageWidth, imageHeight );
+    currRunCol++;
   }
 }
 
@@ -322,8 +292,8 @@ function Deflect() {
   else {
     if(frameNumb<18){
       var currRow = Math.floor(currImage / numbCols);
-      var currCol = currImage % numbCols;
-      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+      var currDeflectCol = currImage % numbCols;
+      ctx.drawImage( deflectsheet, currDeflectCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
       currImage++;
       currImage %= numbImages;
       frameNumb++;
