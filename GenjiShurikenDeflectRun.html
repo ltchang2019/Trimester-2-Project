@@ -56,6 +56,7 @@ var genjiY = 0;
 currRightRunCol = 0;
 GenjiImageWidth = 130;
 GenjiImageHeight = 183;
+currImage=1;
 
 RightRunning=false;
 
@@ -65,6 +66,7 @@ var right = 2;
 var top = 3;
 var left = 4;
 var CurrentState = top;
+var stop =  false;
 
 addEventListener("keydown", handleKey, false);
 
@@ -139,7 +141,7 @@ var toggleRun;
 
 function drawSprite(){
   clearBackground();
-  drawForwardSprite();
+  drawRun();
 }
 
 
@@ -169,8 +171,8 @@ function handleKey(event) {
     // }
   }
   else if(key == 'd') {
-    genjiX+=15;
-    if(RightRunning==false)
+    genjiX+=20;
+    if(RightRunning==false && stop==false)
       runRightRun();
     else{
 
@@ -203,17 +205,31 @@ function drawForwardSprite(){
 
 function drawRun() {
   var currRow = 0;
-  
-   if(currImage<=5&&currCol<5){
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
-      currCol++;
+  stop = true;
+   if(currImage<=5&&currRightRunCol<5){
+    if(currImage==1){
+       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY-4, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+4, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY-4, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY, GenjiImageWidth, GenjiImageHeight );
+      currRightRunCol++;
       currImage++;
     }
   else{
     currImage=1;
-    currCol=0;
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiX, imageWidth, imageHeight );
-    currCol++;
+    currRightRunCol=0;
+    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY-10, GenjiImageWidth, GenjiImageHeight );
+    currRightRunCol++;
+    currImage++;
   }
 }
 

@@ -19,15 +19,24 @@ var currImage = 1;
 var imageWidth = 130, imageHeight = 183;
 var numbRows = 1, numbCols = 5;
 var currCol = 0;
-var running = true;
-addEventListener("click", startRun, true);
+var running = false;
+var counter = 0;
+
+// POSITION VARS
+var genjiX = 0;
+var genjiY = 0;
+
+addEventListener("click", startRun, false);
 
 function handleTheClick() {
   running = !running;
 }
 
 function startRun(){
-  runRun();
+  running = !running;
+  counter++;
+  if (counter<=1)
+    runRun();
 }
 
 var toggleRun;
@@ -36,8 +45,10 @@ var toggleRun;
 }
 
 function animateRun() {
+    if(running==true){
     clearBackground();
   	drawRun();
+  }
 }
 
 function clearBackground() {
@@ -49,15 +60,29 @@ function drawRun() {
   var currRow = 0;
   
    if(currImage<=5&&currCol<5){
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+    if(currImage==1){
+       ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY-4, imageWidth, imageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX+5, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX+2, genjiY-4, imageWidth, imageHeight );
+    }
+    else
+    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
       currCol++;
       currImage++;
     }
   else{
     currImage=1;
     currCol=0;
-    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, 0, 0, imageWidth, imageHeight );
+    ctx.drawImage( runningSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX-5, genjiY-10, imageWidth, imageHeight );
     currCol++;
+    currImage++;
   }
 }
 
