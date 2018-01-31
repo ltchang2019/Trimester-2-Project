@@ -46,8 +46,8 @@ var xC = -200, yC = 60, widthC = 20, heightC = 15;
 var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
 var counter = 0;
 var counter2 = 0;
-var ready = true;
-var runAgain = true;
+var ThrowOn = false;
+var DeflectOn = false;
 var running = true;
 
 //GENJI VARIABLES
@@ -58,6 +58,7 @@ GenjiImageWidth = 130;
 GenjiImageHeight = 183;
 currImage=1;
 
+
 RightRunning=false;
 
 //STATES
@@ -66,15 +67,28 @@ var right = 2;
 var top = 3;
 var left = 4;
 var CurrentState = top;
-var stop =  false;
+var stopped =  true;
 
 addEventListener("keydown", handleKey, false);
 
 document.body.onkeyup = function(e){
-    if(e.keyCode == 32 && runAgain==true){
+    if(e.keyCode == 32 && (RightRunning==true)){
+      RightRunning=false;
+      clearInterval(toggleRun);
+      startThrow();
+      stopped=true;
+    }
+    else if(e.keyCode == 32 && DeflectOn==false){
         startThrow();
     }
-    else if (e.keyCode == 74 && ready==true){
+
+    if(e.keyCode == 74 && RightRunning==true){
+      RightRunning=false;
+      clearInterval(toggleRun);
+      startDeflect();
+      stopped=true;
+    }
+    else if (e.keyCode == 74 && ThrowOn==false){
         startDeflect();
     }
 }
@@ -85,18 +99,18 @@ function handleTheClick() {
 }
 //START FUNCTIONS
 function startThrow(){
-  if(ready==true)
+  if(ThrowOn==false)
     runThrow();
 }
 
 function startDeflect(){
-  if(runAgain==true){
+  if(DeflectOn==false){
     runDeflect();
   }
 }
 
 function startRun(){
-  if(ready&&runAgain)
+  if(ThrowOn==false && DeflectOn==false)
     runRun();
 }
 
@@ -137,6 +151,7 @@ var runDeflect = function(){
 var toggleRun;
   var runRightRun = function(){
   toggleRun = setInterval( drawSprite, 100 );
+  RightRunning=true;
 }
 
 function drawSprite(){
@@ -171,16 +186,13 @@ function handleKey(event) {
     // }
   }
   else if(key == 'd') {
-    genjiX+=20;
-    if(RightRunning==false && stop==false)
+    if(DeflectOn==false && ThrowOn==false)
+      genjiX+=20;
+    if(RightRunning==false && stopped==true && DeflectOn==false && ThrowOn==false){
       runRightRun();
-    else{
-
     }
-    // if(Counter4<1){
-    //   runAnimation();
-    //   Counter4++;
-    // }
+    else{
+    }
   }
 }
 
@@ -205,7 +217,7 @@ function drawForwardSprite(){
 
 function drawRun() {
   var currRow = 0;
-  stop = true;
+  stopped = false;
    if(currImage<=5&&currRightRunCol<5){
     if(currImage==1){
        ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY-4, GenjiImageWidth, GenjiImageHeight );
@@ -279,13 +291,13 @@ ctx.rotate( angleC );
 ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
 ctx.restore();
 if(xC<1500){
-  ready=false;
+  ThrowOn=true;
 }
 
 else if(xC>1500){
   clearInterval(toggleThrow);
 //  alert("he");
-  ready=true;
+  ThrowOn=false;
   running=true;
   xA=100;
   xB=-50;
@@ -329,7 +341,7 @@ function SheathBlade (){
 }
 
 function Deflect() {
-  runAgain=false;
+  DeflectOn=true;
   if (currImage==-1){
     DrawBlade();
     currImage++;
@@ -347,7 +359,7 @@ function Deflect() {
     else {
       SheathBlade();
       clearInterval(toggleDeflect);
-      runAgain=true;
+      DeflectOn=false;
       currImage=-1;
     }
 }
