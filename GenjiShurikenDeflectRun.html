@@ -37,18 +37,7 @@ var numbRows = 2, numbCols = 3;
 var cycleCount = 0;
 var frameNumb = 0;
 
-//FROM SHURIKEN ANIMATION
-var Tire1 = document.getElementById("T1");
-var angleA = 0.0, angleB = 0.0, angleC = 0.0;
-var xA = 100, yA = 60, widthA = 20, heightA = 15;
-var xB = -50, yB = 60, widthB = 20, heightB = 15;
-var xC = -200, yC = 60, widthC = 20, heightC = 15;
-var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
-var counter = 0;
-var counter2 = 0;
-var ThrowOn = false;
-var DeflectOn = false;
-var running = true;
+
 
 //GENJI VARIABLES
 var genjiX = 0;
@@ -58,6 +47,18 @@ GenjiImageWidth = 130;
 GenjiImageHeight = 183;
 currImage=1;
 
+//FROM SHURIKEN ANIMATION
+var Tire1 = document.getElementById("T1");
+var angleA = 0.0, angleB = 0.0, angleC = 0.0;
+var xA = genjiX+100, yA = genjiY+60, widthA = 20, heightA = 15;
+var xB = genjiX-50, yB = genjiY+60, widthB = 20, heightB = 15;
+var xC = genjiX-200, yC = genjiY+60, widthC = 20, heightC = 15;
+var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
+var counter = 0;
+var counter2 = 0;
+var ThrowOn = false;
+var DeflectOn = false;
+var running = true;
 
 RightRunning=false;
 
@@ -100,6 +101,9 @@ function handleTheClick() {
 //START FUNCTIONS
 function startThrow(){
   if(ThrowOn==false)
+  alert("xA " + xA);
+  alert("xB " + xB);
+  alert("xC " + xC);
     runThrow();
 }
 
@@ -186,8 +190,14 @@ function handleKey(event) {
     // }
   }
   else if(key == 'd') {
-    if(DeflectOn==false && ThrowOn==false)
+    if(DeflectOn==false && ThrowOn==false){
       genjiX+=20;
+      xA = genjiX+100;
+      xB = genjiX-50;
+      xC = genjiX-200;
+      xRealA =genjiX+100;
+    }
+
     if(RightRunning==false && stopped==true && DeflectOn==false && ThrowOn==false){
       runRightRun();
     }
@@ -195,7 +205,7 @@ function handleKey(event) {
     }
   }
 }
-
+//////////SO WHY ARE THE POSITION VARIABLES FOR THE SHURIKENS RESETTING WHEN SPACEBAR IS HIT CONSECUTIVELY???????
 
 
 //ANIMATE RUN
@@ -220,33 +230,35 @@ function drawRun() {
   stopped = false;
    if(currImage<=5&&currRightRunCol<5){
     if(currImage==1){
-       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY-4, GenjiImageWidth, GenjiImageHeight );
+       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
     }
     else if(currImage==2){
-      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY, GenjiImageWidth, GenjiImageHeight );
+      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+10, GenjiImageWidth, GenjiImageHeight );
     }
     else if(currImage==4){
-      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+4, GenjiImageWidth, GenjiImageHeight );
+      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
     }
     else if (currImage==5){
-       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY-4, GenjiImageWidth, GenjiImageHeight );
+       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
     }
     else
-    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY, GenjiImageWidth, GenjiImageHeight );
+    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
       currRightRunCol++;
       currImage++;
     }
   else{
     currImage=1;
     currRightRunCol=0;
-    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY-10, GenjiImageWidth, GenjiImageHeight );
+    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY, GenjiImageWidth, GenjiImageHeight );
     currRightRunCol++;
     currImage++;
   }
 }
 
+var xRealA = genjiX+100;
+
 function Throw1() {
-  
+
   ctx.save();
   ctx.translate( xA + widthA/2, yA + heightA/2 );
   xA += 50;
@@ -257,7 +269,7 @@ function Throw1() {
 
 
   
-if(xB<90){
+if(xB<xRealA + widthA/2){
     widthB = 0;
     heightB = 0;
   }
@@ -274,7 +286,7 @@ if(xB<90){
   ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
   ctx.restore();
 
-if(xC<90){
+if(xC< xRealA + widthA/2){
   widthC = 0;
   heightC = 0;
   }
@@ -283,13 +295,14 @@ else{
   heightC = 15;
 }
 
-ctx.save();
-ctx.translate( xC + widthC/2, yC + heightC/2 );
-xC += 50;
-angleC += 3;
-ctx.rotate( angleC );
-ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
-ctx.restore();
+  ctx.save();
+  ctx.translate(xC + widthC/2, yC + heightC/2 );
+  xC += 50;
+  angleC += 3;
+  ctx.rotate( angleC );
+  ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
+  ctx.restore();
+
 if(xC<1500){
   ThrowOn=true;
 }
