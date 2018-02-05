@@ -17,8 +17,12 @@ var deflectsheet = new Image();
 deflectsheet.src = "DeflectSheet.png";
 var thingy = new Image();
 thingy.src = "Draw.png";
-var runningSheet = new Image();
-runningSheet.src = "RunSheetRight.png";
+//RUNNING SHEETS
+var runningRightSheet = new Image();
+runningRightSheet.src = "RunSheetRight.png";
+var runningLeftSheet = new Image();
+runningLeftSheet.src = "RunSheetLeft.png";
+
 
 //SHURIKEN IMAGES
 var shuriken = new Image();
@@ -36,13 +40,14 @@ var DeflectimageWidth = 165, DeflectimageHeight = 205;
 var numbRows = 2, numbCols = 3;
 var cycleCount = 0;
 var frameNumb = 0;
-
-
+var currDeflectImage = 0;
+var currShurikenImage = 0;
 
 //GENJI VARIABLES
 var genjiX = 0;
 var genjiY = 0;
 currRightRunCol = 0;
+currLeftRunCol = 4; 
 GenjiImageWidth = 130;
 GenjiImageHeight = 183;
 currImage=1;
@@ -61,6 +66,7 @@ var DeflectOn = false;
 var running = true;
 
 RightRunning=false;
+LeftRunning=false;
 
 //STATES
 var bottom = 1;
@@ -75,26 +81,44 @@ addEventListener("keydown", handleKey, false);
 document.body.onkeyup = function(e){
     if(e.keyCode == 32 && (RightRunning==true)){
       RightRunning=false;
-      clearInterval(toggleRun);
+      clearInterval(toggleRightRun);
+      clearInterval(toggleLeftRun);
       startThrow();
       stopped=true;
+      currImage=1;
+      currRightRunCol=0;
     }
+
     else if(e.keyCode == 32 && DeflectOn==false){
+        clearInterval(toggleRightRun);
+        clearInterval(toggleLeftRun);
         startThrow();
         stopped=true;
+        RightRunning=false;
+    }
+
+    if(e.keyCode == 65 && LeftRunning==true){
+      clearInterval(toggleLeftRun);
+      stopped=true;
+      LeftRunning=false;
+    }
+
+    if(e.keyCode == 68 && RightRunning==true){
+      RightRunning=false;
+      clearInterval(toggleRightRun);
+      stopped=true;
     }
 
     if(e.keyCode == 74 && RightRunning==true){
-      RightRunning=false;
-      clearInterval(toggleRun);
+      clearInterval(toggleRightRun);
       startDeflect();
       stopped=true;
     }
     else if (e.keyCode == 74 && ThrowOn==false){
-        startDeflect();
+      clearInterval(toggleRightRun);
+      startDeflect();
     }
 }
-
 
 function handleTheClick() {
   running = !running;
@@ -102,11 +126,17 @@ function handleTheClick() {
 //START FUNCTIONS
 function startThrow(){
   if(ThrowOn==false)
+    clearInterval(toggleRightRun);
+    clearInterval(toggleLeftRun);
+    clearInterval(toggleDeflect);
     runThrow();
 }
 
 function startDeflect(){
   if(DeflectOn==false){
+    clearInterval(toggleRightRun);
+    clearInterval(toggleLeftRun);
+    clearInterval(toggleThrow);
     runDeflect();
   }
 }
@@ -122,16 +152,16 @@ function animateThrow() {
   Throw1();
   drawThrow();
 
-  if(cycleCount==2 && currImage==5){
+  if(cycleCount==2 && currShurikenImage==5){
     clearBackground();
     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
     running=false;
-    currImage = 0;
+    currShurikenImage = 0;
     cycleCount = 0;
   }
 }
 
-function animateDeflect() {
+function animateDeflect(){
   if(running) {
     //DrawBlade();
     clearBackground();
@@ -150,15 +180,30 @@ var runDeflect = function(){
     toggleDeflect = setInterval( animateDeflect, 90 );
 }
 
-var toggleRun;
+//TOGGLING RUN
+var toggleRightRun;
   var runRightRun = function(){
-  toggleRun = setInterval( drawSprite, 100 );
+  if(ThrowOn==false && DeflectOn==false){
+    toggleRightRun = setInterval( drawRightSprite, 100 );
+    stopped=false;
+  }
+}
+var toggleLeftRun;
+  var runLeftRun = function(){
+    toggleLeftRun = setInterval(drawLeftSprite, 100);
+    stopped=false;
+  }
+
+function drawRightSprite(){
   RightRunning=true;
+  clearBackground();
+  drawRightRun();
 }
 
-function drawSprite(){
+function drawLeftSprite(){
+  LeftRunning=true;
   clearBackground();
-  drawRun();
+  drawLeftRun();
 }
 
 
@@ -181,11 +226,25 @@ function handleKey(event) {
     // }
   }
   else if(key == 'a') {
-    genjiX-=20;
-    // if(Counter3<1){
-    //   runAnimation();
-    //   Counter3++;
-    // }
+    if(DeflectOn==false && ThrowOn==false){
+      genjiX-=20;
+      xA = genjiX+100;
+      xB = genjiX-70;
+      xC = genjiX-220;
+      xRealA = genjiX+100;
+    }
+
+    if(ThrowOn==true){
+    }
+    else if(RightRunning==false && LeftRunning==false && stopped==true && DeflectOn==false && ThrowOn==false){
+      runLeftRun();
+    }
+    else if (RightRunning==true && LeftRunning==false && DeflectOn==false && ThrowOn==false){
+      clearInterval(toggleRightRun);
+      runLeftRun();
+    }
+    else{
+    }
   }
   else if(key == 'd') {
     if(DeflectOn==false && ThrowOn==false){
@@ -196,62 +255,84 @@ function handleKey(event) {
       xRealA = genjiX+100;
     }
 
-    if(RightRunning==false && stopped==true && DeflectOn==false && ThrowOn==false){
+    if(ThrowOn==true){
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
+      clearInterval(toggleLeftRun);
+      runRightRun();
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==true){
+      clearInterval(toggleLeftRun);
       runRightRun();
     }
     else{
     }
   }
 }
-//////////SO WHY ARE THE POSITION VARIABLES FOR THE SHURIKENS RESETTING WHEN SPACEBAR IS HIT CONSECUTIVELY???????
 
-
-//ANIMATE RUN
-function drawForwardSprite(){
-  //NEED TO FIX WEIRD SPRITE MOVEMENT!!!!!!
-  //if(keydown==true){
-    ctx.drawImage(runningSheet, currRightRunCol*GenjiImageWidth, 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY, GenjiImageWidth, GenjiImageHeight);
-    currRightRunCol++;
-    if(currRightRunCol>=5){
-      currRightRunCol=0;
-    }
-    RightRunning=true;
-   // }
-  // if(keydown==false){
-  //   clearInterval(toggleRun);
-  // }
-
-}
-
-function drawRun() {
+function drawRightRun() {
   var currRow = 0;
   stopped = false;
    if(currImage<=5&&currRightRunCol<5){
     if(currImage==1){
-       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
     }
     else if(currImage==2){
-      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+10, GenjiImageWidth, GenjiImageHeight );
     }
     else if(currImage==4){
-      ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
     }
     else if (currImage==5){
-       ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
     }
     else
-    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+
       currRightRunCol++;
       currImage++;
     }
   else{
     currImage=1;
     currRightRunCol=0;
-    ctx.drawImage( runningSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY, GenjiImageWidth, GenjiImageHeight );
     currRightRunCol++;
     currImage++;
   }
 }
+
+
+function drawLeftRun(){
+  var currRow = 0;
+  stopped = false;
+   if(currImage<=5&&currLeftRunCol>=0){
+    if(currImage==1){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-4, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+
+      currLeftRunCol--;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currLeftRunCol=4;
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    currLeftRunCol--;
+    currImage++;
+  }
+}
+
 
 var xRealA = genjiX+100;
 
@@ -324,18 +405,18 @@ function clearBackground() {
 }
 
 function drawThrow() {
-  var currRow = Math.floor(currImage / numbCols);
-  var currCol = currImage % numbCols;
-  if(currImage==5 && cycleCount<3){
-    currImage=1;
+  var currRow = Math.floor(currShurikenImage / numbCols);
+  var currCol = currShurikenImage % numbCols;
+  if(currShurikenImage==5 && cycleCount<3){
+    currShurikenImage=1;
     currRow=0;
     currCol=0;
     cycleCount++;
   }
   if(running==true){
   ctx.drawImage( throwSheet, currCol*ThrowimageWidth , currRow*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-  currImage++;
-  currImage %= numbImages;
+  currShurikenImage++;
+  currShurikenImage %= numbImages;
 }
   if(running==false){
      ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
@@ -354,25 +435,25 @@ function SheathBlade (){
 
 function Deflect() {
   DeflectOn=true;
-  if (currImage==-1){
+  if (currDeflectImage==-1){
     DrawBlade();
-    currImage++;
+    currDeflectImage++;
     
   }
   else {
     if(frameNumb<18){
-      var currRow = Math.floor(currImage / numbCols);
-      var currCol = currImage % numbCols;
+      var currRow = Math.floor(currDeflectImage / numbCols);
+      var currCol = currDeflectImage % numbCols;
       ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
-      currImage++;
-      currImage %= numbImages;
+      currDeflectImage++;
+      currDeflectImage %= numbImages;
       frameNumb++;
     }
     else {
       SheathBlade();
       clearInterval(toggleDeflect);
       DeflectOn=false;
-      currImage=-1;
+      currDeflectImage=-1;
     }
 }
 }
