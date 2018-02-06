@@ -80,6 +80,7 @@ addEventListener("keydown", handleKey, false);
 
 document.body.onkeyup = function(e){
     if(e.keyCode == 32 && (RightRunning==true)){
+      if(ThrowOn==false){
       RightRunning=false;
       clearInterval(toggleRightRun);
       clearInterval(toggleLeftRun);
@@ -88,25 +89,37 @@ document.body.onkeyup = function(e){
       currImage=1;
       currRightRunCol=0;
     }
-
-    else if(e.keyCode == 32 && DeflectOn==false){
-        clearInterval(toggleRightRun);
-        clearInterval(toggleLeftRun);
-        startThrow();
-        stopped=true;
-        RightRunning=false;
     }
 
+    else if(e.keyCode == 32 && DeflectOn==false){
+        if(ThrowOn==false){
+        clearInterval(toggleRightRun);
+        clearInterval(toggleLeftRun);
+        currImage=1;
+        startThrow();
+        stopped=true; 
+        RightRunning=false;
+      }
+    }
+//A KEY FOR RUNNING LEFT
     if(e.keyCode == 65 && LeftRunning==true){
       clearInterval(toggleLeftRun);
       stopped=true;
       LeftRunning=false;
+      currImage=1;
+      clearBackground();
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      currLeftRunCol=4;
     }
-
+//D KEY FOR RUNNING RIGHT
     if(e.keyCode == 68 && RightRunning==true){
       RightRunning=false;
       clearInterval(toggleRightRun);
       stopped=true;
+      clearBackground();
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      currImage=1;
+      currRightRunCol=0;
     }
 
     if(e.keyCode == 74 && RightRunning==true){
@@ -129,6 +142,7 @@ function startThrow(){
     clearInterval(toggleRightRun);
     clearInterval(toggleLeftRun);
     clearInterval(toggleDeflect);
+    currImage=1;
     runThrow();
 }
 
@@ -137,6 +151,7 @@ function startDeflect(){
     clearInterval(toggleRightRun);
     clearInterval(toggleLeftRun);
     clearInterval(toggleThrow);
+    currImage=1;
     runDeflect();
   }
 }
@@ -172,7 +187,7 @@ function animateDeflect(){
 //TOGGLES
 var toggleThrow;
 var runThrow = function(){
-    toggleThrow = setInterval( animateThrow, 45 );
+    toggleThrow = setInterval( animateThrow, 35 );
 }
 
 var toggleDeflect;
@@ -340,7 +355,7 @@ function Throw1() {
 
   ctx.save();
   ctx.translate( xA + widthA/2, yA + heightA/2 );
-  xA += 70;
+  xA += 75;
   angleA += .8;
   ctx.rotate( angleA );
   ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
@@ -359,7 +374,7 @@ if(xB<xRealA + widthA/2){
 
   ctx.save();
   ctx.translate( xB + widthB/2, yB + heightB/2 );
-  xB += 70;
+  xB += 75;
   angleB += .8;
   ctx.rotate( angleB );
   ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
@@ -376,13 +391,13 @@ else{
 
   ctx.save();
   ctx.translate(xC + widthC/2, yC + heightC/2 );
-  xC += 70;
+  xC += 75;
   angleC += .8;
   ctx.rotate( angleC );
   ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
   ctx.restore();
 
-if(xC<1500+genjiX){
+if(xC<1300+genjiX){
   ThrowOn=true;
 }
 
@@ -396,7 +411,6 @@ else{
   xC = genjiX-220;
   xRealA = genjiX+100;
 }
-//WHY DO SHURIKENS SPEED UP ROTATIONS AFTER CERTAIN POINT?
 }
 
 function clearBackground() {
