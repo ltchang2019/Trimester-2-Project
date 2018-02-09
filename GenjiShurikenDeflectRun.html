@@ -3,7 +3,7 @@
 <style>canvas { border: 2px solid red; background-color: green;} </style>
 <body>
 
-<canvas width=1500 height=500 id="myCanvas"></canvas>
+<canvas width=1000 height=600 id="myCanvas"></canvas>
 <p id="demo"></p>
 
 <script>
@@ -65,8 +65,11 @@ var ThrowOn = false;
 var DeflectOn = false;
 var running = true;
 
+//RUNNING STATES
+var RunningPossible = true;
 RightRunning=false;
 LeftRunning=false;
+DownRunning=false;
 
 //STATES
 var bottom = 1;
@@ -208,6 +211,11 @@ var toggleLeftRun;
     toggleLeftRun = setInterval(drawLeftSprite, 100);
     stopped=false;
   }
+var toggleDownRun;
+  var runDownRun = function(){
+    toggleDownRun = (drawDownSprite, 100);
+    stopped = false;
+  }
 
 function drawRightSprite(){
   RightRunning=true;
@@ -221,6 +229,11 @@ function drawLeftSprite(){
   drawLeftRun();
 }
 
+function drawDownSprite(){
+  DownRunning=true;
+  clearBackground();
+  drawDownRun();
+}
 
 //HANDLEKEYS
 function handleKey(event) {
@@ -348,6 +361,10 @@ function drawLeftRun(){
   }
 }
 
+function drawDownRun(){
+
+}
+
 
 var xRealA = genjiX+100;
 
@@ -397,13 +414,11 @@ else{
   ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
   ctx.restore();
 
-if(xC<1300+genjiX){
+if(xC<1100+genjiX){
   ThrowOn=true;
 }
-
 else{
   clearInterval(toggleThrow);
-//  alert("he");
   ThrowOn=false;
   running=true;
   xA = genjiX+100;
@@ -455,7 +470,7 @@ function Deflect() {
     
   }
   else {
-    if(frameNumb<18){
+    if(frameNumb<12){
       var currRow = Math.floor(currDeflectImage / numbCols);
       var currCol = currDeflectImage % numbCols;
       ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );

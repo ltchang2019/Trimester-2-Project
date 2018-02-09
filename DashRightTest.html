@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=800 height=400 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var dashRightSheet = new Image();
+dashRightSheet.src = "dashRight.png";
+
+
+var numbImages = 5;
+var currImage = 1;
+var imageWidth = 180, imageHeight = 100;
+var numbRows = 1, numbCols = 5;
+var currCol = 0;
+var currRow = 0;
+var running = false;
+var counter = 0;
+
+// POSITION VARS
+var genjiX = 0;
+var genjiY = 0;
+
+addEventListener("click", startRun, false);
+
+function handleTheClick() {
+  running = !running;
+}
+
+function startRun(){
+  running = !running;
+  counter++;
+  if (counter<=1)
+    runRun();
+}
+
+var toggleRun;
+  var runRun = function(){
+  toggleRun = setInterval( animateRun, 45 );
+}
+
+function animateRun() {
+    if(running==true){
+    genjiX+=90;
+    clearBackground();
+  	drawRun();
+  }
+}
+
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height);
+}
+
+function drawRun() {
+  var currRow = 0;
+   if(currImage<=5){
+    if(currImage==1){
+       ctx.drawImage( dashRightSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY-4, imageWidth, imageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( dashRightSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX+5, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( dashRightSheet, currCol*imageWidth +5 , 0, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( dashRightSheet, 0 , 1*imageHeight, 200, 150, genjiX+2, genjiY-50, imageWidth, imageHeight+50 );
+       clearInterval(toggleRun);
+    }
+    else
+    ctx.drawImage( dashRightSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      currCol++;
+      currImage++;
+    }
+  else{
+    // currImage=1;
+    // currCol=0;
+    // ctx.drawImage( dashRightSheet, currCol*imageWidth , 0, imageWidth, imageHeight, genjiX-5, genjiY-10, imageWidth, imageHeight );
+    // currCol++;
+    // currImage++;
+  }
+}
+
+
+</script>
+
+</body>
+</html>
