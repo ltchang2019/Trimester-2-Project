@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=1000 height=600 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+//BACKGROUND IMAGE
+var canvasBackground = new Image();
+canvasBackground.src = "background.png";
+
+//SPRITESHEET FOR THROWING ANIMATION
+var throwSheet = new Image();
+throwSheet.src = "ShurikenSheet.png";
+var deflectsheet = new Image();
+deflectsheet.src = "DeflectSheet.png";
+var thingy = new Image();
+thingy.src = "Draw.png";
+//RUNNING SHEETS
+var runningRightSheet = new Image();
+runningRightSheet.src = "RunSheetRight.png";
+var runningLeftSheet = new Image();
+runningLeftSheet.src = "RunSheetLeft.png";
+
+
+//SHURIKEN IMAGES
+var shuriken = new Image();
+shuriken.src = 'shuriken1.jpg';
+var shuriken2 = new Image();
+shuriken2.src = 'shuriken2.jpg';
+var shuriken3 = new Image();
+shuriken3.src = 'shuriken3.jpg';
+
+//FROM THROWING ANIMATION
+var numbImages = 6;
+var currImage = 0;
+var ThrowimageWidth = 200, ThrowimageHeight = 204;
+var DeflectimageWidth = 165, DeflectimageHeight = 205;
+var numbRows = 2, numbCols = 3;
+var cycleCount = 0;
+var frameNumb = 0;
+var currDeflectImage = 0;
+var currShurikenImage = 0;
+
+//GENJI VARIABLES
+var genjiX = 30;
+var genjiY = 400;
+currRightRunCol = 0;
+currLeftRunCol = 4; 
+GenjiImageWidth = 130;
+GenjiImageHeight = 183;
+currImage=1;
+
+//FROM SHURIKEN ANIMATION
+var Tire1 = document.getElementById("T1");
+var angleA = 0.0, angleB = 0.0, angleC = 0.0;
+var xA = genjiX+100, yA = genjiY+60, widthA = 20, heightA = 15;
+var xB = genjiX-70, yB = genjiY+60, widthB = 20, heightB = 15;
+var xC = genjiX-220, yC = genjiY+60, widthC = 20, heightC = 15;
+var xBike = 57, yBike = 10, widthBike = 200, heightBike = 130;
+var counter = 0;
+var counter2 = 0;
+var ThrowOn = false;
+var DeflectOn = false;
+var running = true;
+
+//RUNNING STATES
+var RunningPossible = true;
+RightRunning=false;
+LeftRunning=false;
+DownRunning=false;
+
+//STATES
+var bottom = 1;
+var right = 2;
+var top = 3;
+var left = 4;
+var CurrentState = top;
+var stopped =  true;
+
+addEventListener("keydown", handleKey, false);
+
+document.body.onkeyup = function(e){
+    if(e.keyCode == 32 && (RightRunning==true)){
+      if(ThrowOn==false){
+      RightRunning=false;
+      clearInterval(toggleRightRun);
+      clearInterval(toggleLeftRun);
+      startThrow();
+      stopped=true;
+      currImage=1;
+      currRightRunCol=0;
+    }
+    }
+
+    else if(e.keyCode == 32 && DeflectOn==false){
+        if(ThrowOn==false){
+        clearInterval(toggleRightRun);
+        clearInterval(toggleLeftRun);
+        currImage=1;
+        startThrow();
+        stopped=true; 
+        RightRunning=false;
+      }
+    }
+//A KEY FOR RUNNING LEFT
+    if(e.keyCode == 65 && LeftRunning==true){
+      clearInterval(toggleLeftRun);
+      stopped=true;
+      LeftRunning=false;
+      currImage=1;
+      clearBackground();
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      currLeftRunCol=4;
+    }
+//D KEY FOR RUNNING RIGHT
+    if(e.keyCode == 68 && RightRunning==true){
+      RightRunning=false;
+      clearInterval(toggleRightRun);
+      stopped=true;
+      clearBackground();
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      currImage=1;
+      currRightRunCol=0;
+    }
+
+    if(e.keyCode == 74 && RightRunning==true){
+      clearInterval(toggleRightRun);
+      startDeflect();
+      stopped=true;
+    }
+    else if (e.keyCode == 74 && ThrowOn==false){
+      clearInterval(toggleRightRun);
+      startDeflect();
+    }
+}
+
+function handleTheClick() {
+  running = !running;
+}
+//START FUNCTIONS
+function startThrow(){
+  if(ThrowOn==false)
+    clearInterval(toggleRightRun);
+    clearInterval(toggleLeftRun);
+    clearInterval(toggleDeflect);
+    currImage=1;
+    runThrow();
+}
+
+function startDeflect(){
+  if(DeflectOn==false){
+    clearInterval(toggleRightRun);
+    clearInterval(toggleLeftRun);
+    clearInterval(toggleThrow);
+    currImage=1;
+    runDeflect();
+  }
+}
+
+function startRun(){
+  if(ThrowOn==false && DeflectOn==false)
+    runRun();
+}
+
+//ANIMATION FUNCTIONS
+function animateThrow() {
+  clearActionBackground();
+  Throw1();
+  drawThrow();
+
+  if(cycleCount==2 && currShurikenImage==5){
+    clearActionBackground();
+    ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+    running=false;
+    currShurikenImage = 0;
+    cycleCount = 0;
+  }
+}
+
+function animateDeflect(){
+  if(running) {
+    //DrawBlade();
+    clearActionBackground();
+    Deflect();
+  }
+}
+
+//TOGGLES
+var toggleThrow;
+var runThrow = function(){
+    toggleThrow = setInterval( animateThrow, 35 );
+}
+
+var toggleDeflect;
+var runDeflect = function(){
+    toggleDeflect = setInterval( animateDeflect, 90 );
+}
+
+//TOGGLING RUN
+var toggleRightRun;
+  var runRightRun = function(){
+  if(ThrowOn==false && DeflectOn==false){
+    toggleRightRun = setInterval( drawRightSprite, 100 );
+    stopped=false;
+  }
+}
+var toggleLeftRun;
+  var runLeftRun = function(){
+    toggleLeftRun = setInterval(drawLeftSprite, 100);
+    stopped=false;
+  }
+var toggleDownRun;
+  var runDownRun = function(){
+    toggleDownRun = (drawDownSprite, 100);
+    stopped = false;
+  }
+
+function drawRightSprite(){
+  RightRunning=true;
+  clearBackground();
+  drawRightRun();
+}
+
+function drawLeftSprite(){
+  LeftRunning=true;
+  clearBackground();
+  drawLeftRun();
+}
+
+
+//HANDLEKEYS
+function handleKey(event) {
+  var key = event.key;
+  //JUMP
+  if(key == 'w') {
+    genjiY-=10;
+    
+    // if(Counter1<1){
+    //   runAnimation();
+    //   Counter1++;
+    // }
+  }
+  
+  //MOVE RIGHT
+  else if(key == 'd') {
+    if(DeflectOn==false && ThrowOn==false){
+      // genjiX+=20;
+      // xA = genjiX+100;
+      // xB = genjiX-70;
+      // xC = genjiX-220;
+      // xRealA = genjiX+100;
+    }
+
+    if(ThrowOn==true){
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
+      clearInterval(toggleLeftRun);
+      runRightRun();
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==true){
+      clearInterval(toggleLeftRun);
+      runRightRun();
+    }
+    else{
+    }
+  }
+}
+
+function drawRightRun() {
+  var currRow = 0;
+  stopped = false;
+   if(currImage<=5&&currRightRunCol<5){
+    if(currImage==1){
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+
+      currRightRunCol++;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currRightRunCol=0;
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    currRightRunCol++;
+    currImage++;
+  }
+}
+
+
+function drawLeftRun(){
+  var currRow = 0;
+  stopped = false;
+   if(currImage<=5&&currLeftRunCol>=0){
+    if(currImage==1){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-4, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+
+      currLeftRunCol--;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currLeftRunCol=4;
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    currLeftRunCol--;
+    currImage++;
+  }
+}
+
+var xRealA = genjiX+100;
+
+function Throw1() {
+
+  ctx.save();
+  ctx.translate( xA + widthA/2, yA + heightA/2 );
+  xA += 75;
+  angleA += .8;
+  ctx.rotate( angleA );
+  ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
+  ctx.restore();
+
+
+  
+if(xB<xRealA + widthA/2){
+    widthB = 0;
+    heightB = 0;
+  }
+  else{
+    widthB = 20;
+    heightB = 15;
+  }
+
+  ctx.save();
+  ctx.translate( xB + widthB/2, yB + heightB/2 );
+  xB += 75;
+  angleB += .8;
+  ctx.rotate( angleB );
+  ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
+  ctx.restore();
+
+if(xC< xRealA + widthA/2){
+  widthC = 0;
+  heightC = 0;
+  }
+else{
+  widthC = 20;
+  heightC = 15;
+}
+
+  ctx.save();
+  ctx.translate(xC + widthC/2, yC + heightC/2 );
+  xC += 75;
+  angleC += .8;
+  ctx.rotate( angleC );
+  ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
+  ctx.restore();
+
+if(xC<1100+genjiX){
+  ThrowOn=true;
+}
+else{
+  clearInterval(toggleThrow);
+  ThrowOn=false;
+  running=true;
+  xA = genjiX+100;
+  xB = genjiX-70;
+  xC = genjiX-220;
+  xRealA = genjiX+100;
+}
+}
+
+var backgroundX = 0;
+
+function clearActionBackground(){
+  ctx.drawImage(canvasBackground, backgroundX, 0); 
+}
+
+function clearBackground() {
+  backgroundX-=5;
+  if(backgroundX < -100) backgroundX = 0;
+  ctx.drawImage(canvasBackground, backgroundX, 0); 
+}
+
+function drawThrow() {
+  var currRow = Math.floor(currShurikenImage / numbCols);
+  var currCol = currShurikenImage % numbCols;
+  if(currShurikenImage==5 && cycleCount<3){
+    currShurikenImage=1;
+    currRow=0;
+    currCol=0;
+    cycleCount++;
+  }
+  if(running==true){
+  ctx.drawImage( throwSheet, currCol*ThrowimageWidth , currRow*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  currShurikenImage++;
+  currShurikenImage %= numbImages;
+}
+  if(running==false){
+     ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  }
+}
+
+////////DEFLECT STUFF
+function DrawBlade(){
+    ctx.drawImage( thingy, 0, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+}
+
+function SheathBlade (){ 
+  ctx.drawImage( thingy, 170, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+  frameNumb=0;
+}
+
+function Deflect() {
+  DeflectOn=true;
+  if (currDeflectImage==-1){
+    DrawBlade();
+    currDeflectImage++;
+    
+  }
+  else {
+    if(frameNumb<12){
+      var currRow = Math.floor(currDeflectImage / numbCols);
+      var currCol = currDeflectImage % numbCols;
+      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+      currDeflectImage++;
+      currDeflectImage %= numbImages;
+      frameNumb++;
+    }
+
+    else {
+      SheathBlade();
+      clearInterval(toggleDeflect);
+      DeflectOn=false;
+      currDeflectImage=-1;
+    }
+}
+}
+
+</script>
+
+</body>
+</html> 
