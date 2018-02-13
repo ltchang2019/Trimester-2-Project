@@ -3,28 +3,12 @@
 <style>canvas { border: 2px solid red; background-color: green;} </style>
 <body>
 
-<canvas width=1000 height=600 id="myCanvas"></canvas>
+<canvas width=1500 height=500 id="myCanvas"></canvas>
 <p id="demo"></p>
 
 <script>
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
-
-//BACKGROUND IMAGE
-var canvasBackground = new Image();
-canvasBackground.src = "background.png";
-
-//DASH SHEET
-var dashRightSheet = new Image();
-dashRightSheet.src = "dashRight.png";
-
-//DASH VARIABLES
-var numbRightDashImages = 5;
-var currRightDashImage = 1;
-var DashWidth = 180, DashHeight = 100;
-var numbRightDashRows = 1, numbRightDashCols = 5;
-var currRightDashCol = 0;
-
 //SPRITESHEET FOR THROWING ANIMATION
 var throwSheet = new Image();
 throwSheet.src = "ShurikenSheet.png";
@@ -37,8 +21,6 @@ var runningRightSheet = new Image();
 runningRightSheet.src = "RunSheetRight.png";
 var runningLeftSheet = new Image();
 runningLeftSheet.src = "RunSheetLeft.png";
-
-
 //SHURIKEN IMAGES
 var shuriken = new Image();
 shuriken.src = 'shuriken1.jpg';
@@ -46,7 +28,6 @@ var shuriken2 = new Image();
 shuriken2.src = 'shuriken2.jpg';
 var shuriken3 = new Image();
 shuriken3.src = 'shuriken3.jpg';
-
 //FROM THROWING ANIMATION
 var numbImages = 6;
 var currImage = 0;
@@ -57,22 +38,14 @@ var cycleCount = 0;
 var frameNumb = 0;
 var currDeflectImage = 0;
 var currShurikenImage = 0;
-
 //GENJI VARIABLES
-var genjiX = 250;
-var genjiY = 365;
+var genjiX = 0;
+var genjiY = 0;
 currRightRunCol = 0;
 currLeftRunCol = 4; 
 GenjiImageWidth = 130;
 GenjiImageHeight = 183;
 currImage=1;
-
-//CLEAR BACKGROUND VARS
-var backgroundX = 0;
-var RunFrameWidth = 400;
-var RunFrameHeight = 600;
-
-
 //FROM SHURIKEN ANIMATION
 var Tire1 = document.getElementById("T1");
 var angleA = 0.0, angleB = 0.0, angleC = 0.0;
@@ -85,13 +58,8 @@ var counter2 = 0;
 var ThrowOn = false;
 var DeflectOn = false;
 var running = true;
-
-//RUNNING STATES
-var RunningPossible = true;
 RightRunning=false;
 LeftRunning=false;
-DownRunning=false;
-
 //STATES
 var bottom = 1;
 var right = 2;
@@ -99,12 +67,9 @@ var top = 3;
 var left = 4;
 var CurrentState = top;
 var stopped =  true;
-
 addEventListener("keydown", handleKey, false);
-
 document.body.onkeyup = function(e){
     if(e.keyCode == 32 && (RightRunning==true)){
-      if(ThrowOn==false){
       RightRunning=false;
       clearInterval(toggleRightRun);
       clearInterval(toggleLeftRun);
@@ -113,30 +78,23 @@ document.body.onkeyup = function(e){
       currImage=1;
       currRightRunCol=0;
     }
-    }
-
     else if(e.keyCode == 32 && DeflectOn==false){
-        if(ThrowOn==false){
         clearInterval(toggleRightRun);
         clearInterval(toggleLeftRun);
-        currImage=1;
         startThrow();
-        stopped=true; 
+        stopped=true;
         RightRunning=false;
-      }
     }
-
-//D KEY FOR RUNNING RIGHT
+    if(e.keyCode == 65 && LeftRunning==true){
+      clearInterval(toggleLeftRun);
+      stopped=true;
+      LeftRunning=false;
+    }
     if(e.keyCode == 68 && RightRunning==true){
       RightRunning=false;
       clearInterval(toggleRightRun);
       stopped=true;
-      clearActionBackground();
-      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
-      currImage=1;
-      currRightRunCol=0;
     }
-
     if(e.keyCode == 74 && RightRunning==true){
       clearInterval(toggleRightRun);
       startDeflect();
@@ -147,7 +105,6 @@ document.body.onkeyup = function(e){
       startDeflect();
     }
 }
-
 function handleTheClick() {
   running = !running;
 }
@@ -157,106 +114,49 @@ function startThrow(){
     clearInterval(toggleRightRun);
     clearInterval(toggleLeftRun);
     clearInterval(toggleDeflect);
-    currImage=1;
     runThrow();
 }
-
 function startDeflect(){
   if(DeflectOn==false){
     clearInterval(toggleRightRun);
     clearInterval(toggleLeftRun);
     clearInterval(toggleThrow);
-    currImage=1;
     runDeflect();
   }
 }
-
 function startRun(){
   if(ThrowOn==false && DeflectOn==false)
     runRun();
 }
-
 //ANIMATION FUNCTIONS
 function animateThrow() {
-  clearActionBackground();
+  clearBackground();
   Throw1();
   drawThrow();
-
   if(cycleCount==2 && currShurikenImage==5){
-    clearActionBackground();
+    clearBackground();
     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
     running=false;
     currShurikenImage = 0;
     cycleCount = 0;
   }
 }
-
 function animateDeflect(){
   if(running) {
     //DrawBlade();
-    clearActionBackground();
+    clearBackground();
     Deflect();
   }
 }
-
-var Dashed = false;
-
-//DASH
-function startDash(){
-    if(Dashed==false)
-      runDash();
-}
-var toggleRun;
-  var runDash = function(){
-  toggleRun = setInterval( animateDash, 30 );
-}
-function animateDash() {
-    backgroundX -=20;
-    genjiX+=60;
-    clearBackground();
-    drawDash();
-    Dashed=true;
-}
-
-function drawDash() {
-  var currRow = 0;
-   if(currRightDashImage<=5){
-    if(currRightDashImage==1){
-       ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth, DashHeight, genjiX, genjiY-4, DashWidth+ 20, DashHeight + 80);
-    }
-    else if(currRightDashImage==2){
-      ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth, DashHeight, genjiX+5, genjiY, DashWidth+ 20, DashHeight + 80);
-    }
-    else if(currRightDashImage==4){
-      ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth +5 , 0, DashWidth, DashHeight, genjiX-5, genjiY+4, DashWidth+ 20, DashHeight + 80);
-    }
-    else if (currRightDashImage==5){
-       ctx.drawImage( dashRightSheet, 0 , 1*DashHeight+10, 200, 140, genjiX+2, genjiY - 50, DashWidth + 20, DashHeight + 100);
-    }
-    else
-    ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth+ 20, 140, genjiX, genjiY, DashWidth, DashHeight + 80);
-      currRightDashCol++;
-      currRightDashImage++;
-    }
-  else{
-    ctx.drawImage( throwSheet, 0 , 0, 200, 204, genjiX-10, genjiY, 200, 204 );
-    clearInterval(toggleRun);
-    currRightDashImage=1;
-    currRightDashCol=0;
-  }
-}
-
 //TOGGLES
 var toggleThrow;
 var runThrow = function(){
-    toggleThrow = setInterval( animateThrow, 40 );
+    toggleThrow = setInterval( animateThrow, 45 );
 }
-
 var toggleDeflect;
 var runDeflect = function(){
     toggleDeflect = setInterval( animateDeflect, 90 );
 }
-
 //TOGGLING RUN
 var toggleRightRun;
   var runRightRun = function(){
@@ -270,60 +170,83 @@ var toggleLeftRun;
     toggleLeftRun = setInterval(drawLeftSprite, 100);
     stopped=false;
   }
-var toggleDownRun;
-  var runDownRun = function(){
-    toggleDownRun = (drawDownSprite, 100);
-    stopped = false;
-  }
-
 function drawRightSprite(){
   RightRunning=true;
   clearBackground();
   drawRightRun();
 }
-
 function drawLeftSprite(){
   LeftRunning=true;
   clearBackground();
   drawLeftRun();
 }
-
-
 //HANDLEKEYS
 function handleKey(event) {
   var key = event.key;
-  //JUMP
   if(key == 'w') {
     genjiY-=10;
+    
+    // if(Counter1<1){
+    //   runAnimation();
+    //   Counter1++;
+    // }
   }
-  
-  //MOVE RIGHT
-  else if(key == 'd') {
-    if(DeflectOn==false || ThrowOn==false){
+  else if(key == 's') {
+    genjiY+=20;
+    // if(Counter2<1){
+    //   runAnimation();
+    //   Counter2++;
+    // }
+  }
+  else if(key == 'a') {
+    if(DeflectOn==false && ThrowOn==false){
+      genjiX-=20;
+      xA = genjiX+100;
+      xB = genjiX-70;
+      xC = genjiX-220;
+      xRealA = genjiX+100;
     }
-
-    if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
+    if(ThrowOn==true){
+    }
+    else if(RightRunning==false && LeftRunning==false && stopped==true && DeflectOn==false && ThrowOn==false){
+      runLeftRun();
+    }
+    else if (RightRunning==true && LeftRunning==false && DeflectOn==false && ThrowOn==false){
+      clearInterval(toggleRightRun);
+      runLeftRun();
+    }
+    else{
+    }
+  }
+  else if(key == 'd') {
+    if(DeflectOn==false && ThrowOn==false){
+      genjiX+=20;
+      xA = genjiX+100;
+      xB = genjiX-70;
+      xC = genjiX-220;
+      xRealA = genjiX+100;
+    }
+    if(ThrowOn==true){
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
+      clearInterval(toggleLeftRun);
+      runRightRun();
+    }
+    else if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==true){
+      clearInterval(toggleLeftRun);
       runRightRun();
     }
     else{
     }
   }
+
   if(key == 'e'){
-    startDash();
+    
   }
 }
-
 function drawRightRun() {
   var currRow = 0;
   stopped = false;
-  if(Dashed==true && genjiX>=250){
-    genjiX-=10;
-    backgroundX-=10;
-  }
-  else if(genjiX<=250){
-    Dashed=false;
-  }
-
    if(currImage<=5&&currRightRunCol<5){
     if(currImage==1){
        ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
@@ -339,7 +262,6 @@ function drawRightRun() {
     }
     else
     ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
-
       currRightRunCol++;
       currImage++;
     }
@@ -351,21 +273,44 @@ function drawRightRun() {
     currImage++;
   }
 }
-
-
+function drawLeftRun(){
+  var currRow = 0;
+  stopped = false;
+   if(currImage<=5&&currLeftRunCol>=0){
+    if(currImage==1){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-4, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+      currLeftRunCol--;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currLeftRunCol=4;
+    ctx.drawImage( runningLeftSheet, currLeftRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    currLeftRunCol--;
+    currImage++;
+  }
+}
 var xRealA = genjiX+100;
-
 function Throw1() {
-
   ctx.save();
   ctx.translate( xA + widthA/2, yA + heightA/2 );
-  xA += 75;
+  xA += 70;
   angleA += .8;
   ctx.rotate( angleA );
   ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
   ctx.restore();
-
-
   
 if(xB<xRealA + widthA/2){
     widthB = 0;
@@ -375,15 +320,13 @@ if(xB<xRealA + widthA/2){
     widthB = 20;
     heightB = 15;
   }
-
   ctx.save();
   ctx.translate( xB + widthB/2, yB + heightB/2 );
-  xB += 75;
+  xB += 70;
   angleB += .8;
   ctx.rotate( angleB );
   ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
   ctx.restore();
-
 if(xC< xRealA + widthA/2){
   widthC = 0;
   heightC = 0;
@@ -392,22 +335,19 @@ else{
   widthC = 20;
   heightC = 15;
 }
-
   ctx.save();
   ctx.translate(xC + widthC/2, yC + heightC/2 );
-  xC += 75;
+  xC += 70;
   angleC += .8;
   ctx.rotate( angleC );
   ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
   ctx.restore();
-
-if(xC<1100+genjiX){
+if(xC<1500+genjiX){
   ThrowOn=true;
 }
-
 else{
   clearInterval(toggleThrow);
-  clearActionBackground();
+//  alert("he");
   ThrowOn=false;
   running=true;
   xA = genjiX+100;
@@ -415,18 +355,12 @@ else{
   xC = genjiX-220;
   xRealA = genjiX+100;
 }
-} 
-
-function clearActionBackground(){
-  ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); }
-
-function clearBackground() {
-  backgroundX-=6;
-  if(backgroundX < -395) 
-    backgroundX = 0;
-  ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
+//WHY DO SHURIKENS SPEED UP ROTATIONS AFTER CERTAIN POINT?
 }
-
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height); 
+}
 function drawThrow() {
   var currRow = Math.floor(currShurikenImage / numbCols);
   var currCol = currShurikenImage % numbCols;
@@ -445,38 +379,30 @@ function drawThrow() {
      ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
   }
 }
-
 ////////DEFLECT STUFF
 function DrawBlade(){
     ctx.drawImage( thingy, 0, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
 }
-
-function SheathBlade (){ 
+function SheathBlade (){
   ctx.drawImage( thingy, 170, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
   frameNumb=0;
 }
-
 function Deflect() {
   DeflectOn=true;
   if (currDeflectImage==-1){
     DrawBlade();
     currDeflectImage++;
+    
   }
   else {
-    if(frameNumb<12){
+    if(frameNumb<18){
       var currRow = Math.floor(currDeflectImage / numbCols);
       var currCol = currDeflectImage % numbCols;
-      if(frameNumb==1 || frameNumb==7){
-      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY-10, DeflectimageWidth, DeflectimageHeight );
-      }
-      else{
       ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
-      }
       currDeflectImage++;
       currDeflectImage %= numbImages;
       frameNumb++;
     }
-
     else {
       SheathBlade();
       clearInterval(toggleDeflect);
@@ -485,7 +411,6 @@ function Deflect() {
     }
 }
 }
-
 </script>
 
 </body>

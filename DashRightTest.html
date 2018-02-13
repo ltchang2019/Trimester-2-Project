@@ -28,26 +28,22 @@ var counter = 0;
 var genjiX = 0;
 var genjiY = 0;
 
-addEventListener("click", startRun, false);
+addEventListener("click", startDash, false);
 
-function handleTheClick() {
-}
 
-function startRun(){
-  counter++;
-  if (counter<=1)
-    runRun();
+function startDash(){
+    runDash();
 }
 
 var toggleRun;
-  var runRun = function(){
-  toggleRun = setInterval( animateRun, 40 );
+  var runDash = function(){
+  toggleRun = setInterval( animateDash, 40 );
 }
 
-function animateRun() {
-    genjiX+=90;
+function animateDash() {
+    // genjiX+=80;
     clearBackground();
-  	drawRun();
+  	drawDash();
 }
 
 function clearBackground() {
@@ -55,7 +51,7 @@ function clearBackground() {
   ctx.fillRect( 0, 0, canvas.width, canvas.height);
 }
 
-function drawRun() {
+function drawDash() {
   var currRow = 0;
    if(currRightDashImage<=5){
     if(currRightDashImage==1){
@@ -78,6 +74,8 @@ function drawRun() {
   else{
     ctx.drawImage( throwSheet, 0 , 0, 200, 204, genjiX-10, genjiY, 200, 204 );
     clearInterval(toggleRun);
+    currRightDashImage=1;
+    currRightDashCol=0;
   }
 }
 
