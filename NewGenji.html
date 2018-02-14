@@ -18,6 +18,10 @@ canvasBackground.src = "background.png";
 var dashRightSheet = new Image();
 dashRightSheet.src = "dashRight.png";
 
+//TRAINING BOT
+var trainingBot = new Image();
+trainingBot.src = "TrainingBot.png";
+
 //DASH VARIABLES
 var numbRightDashImages = 5;
 var currRightDashImage = 1;
@@ -103,35 +107,13 @@ var stopped =  true;
 addEventListener("keydown", handleKey, false);
 
 document.body.onkeyup = function(e){
-    if(e.keyCode == 32 && (RightRunning==true)){
-      if(ThrowOn==false){
-      RightRunning=false;
-      clearInterval(toggleRightRun);
-      clearInterval(toggleLeftRun);
-      startThrow();
-      stopped=true;
-      currImage=1;
-      currRightRunCol=0;
-    }
-    }
-
-    else if(e.keyCode == 32 && DeflectOn==false){
-        if(ThrowOn==false){
-        clearInterval(toggleRightRun);
-        clearInterval(toggleLeftRun);
-        currImage=1;
-        startThrow();
-        stopped=true; 
-        RightRunning=false;
-      }
-    }
 
 //D KEY FOR RUNNING RIGHT
     if(e.keyCode == 68 && RightRunning==true){
       RightRunning=false;
+      currentlyRunning=false;
       clearInterval(toggleRightRun);
       stopped=true;
-      clearActionBackground();
       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
       currImage=1;
       currRightRunCol=0;
@@ -147,6 +129,8 @@ document.body.onkeyup = function(e){
       startDeflect();
     }
 }
+
+
 
 function handleTheClick() {
   running = !running;
@@ -245,16 +229,18 @@ function drawDash() {
     currRightDashCol=0;
   }
 }
-
+var frameSpeed;
 //TOGGLES
 var toggleThrow;
 var runThrow = function(){
     toggleThrow = setInterval( animateThrow, 40 );
+    frameSpeed = 40;
 }
 
 var toggleDeflect;
 var runDeflect = function(){
     toggleDeflect = setInterval( animateDeflect, 90 );
+    frameSpeed = 90;
 }
 
 //TOGGLING RUN
@@ -263,23 +249,40 @@ var toggleRightRun;
   if(ThrowOn==false && DeflectOn==false){
     toggleRightRun = setInterval( drawRightSprite, 100 );
     stopped=false;
+    frameSpeed = 100;
   }
 }
 var toggleLeftRun;
   var runLeftRun = function(){
     toggleLeftRun = setInterval(drawLeftSprite, 100);
     stopped=false;
+    frameSpeed = 100;
   }
 var toggleDownRun;
   var runDownRun = function(){
     toggleDownRun = (drawDownSprite, 100);
     stopped = false;
+    frameSpeed = 100;
   }
 
+var toggleBots;
+  var runBots = function(){
+    toggleBots = setInterval(animateBot, frameSpeed);
+}
+
+function animateBot(){
+  if(RightRunning==false){
+    clearActionBackground();
+  }
+  drawBot();
+}
+
 function drawRightSprite(){
+  if(currentlyRunning==true){
   RightRunning=true;
   clearBackground();
   drawRightRun();
+}
 }
 
 function drawLeftSprite(){
@@ -288,20 +291,67 @@ function drawLeftSprite(){
   drawLeftRun();
 }
 
+var currentlyRunning = false;
+var drawingBot = false;
+//ANIMATE ALL
+function animateAll(){
+  if(BotRunning==true){
+    drawingBot=true;
+    if(currentlyRunning==false){
+      clearActionBackground();
+      drawBot();
+    }
+  }
+  if(RightRunning==true && BotRunning!=true){
+    if(RightRunning==true){
+      clearBackground();
+      drawRightRun();
+      if(drawingBot==true)
+        drawBot();
+    }
+    else if (stopped==true){
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+    }
+  }
+  if(RightRunning==true && BotRunning==true){
+    if(RightRunning==true){
+      currentlyRunning=true;
+      clearBackground();
+      drawRightRun();
+      if(drawingBot==true){
+        BotSpeed=8;
+        drawBot();
+      }
+      }
+  }
+    else if(RightRunning==false){
+      clearActionBackground();
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      if(drawingBot==true){
+       BotSpeed=1;
+       drawBot();
+      }
+    }
+}
+
+setInterval(animateAll, 50);
 
 //HANDLEKEYS
+
+var BotRunning = false;
+
 function handleKey(event) {
   var key = event.key;
+  // runBots();
   //JUMP
   if(key == 'w') {
     genjiY-=10;
   }
-  
   //MOVE RIGHT
   else if(key == 'd') {
+    RightRunning=true;
     if(DeflectOn==false || ThrowOn==false){
     }
-
     if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
       runRightRun();
     }
@@ -311,6 +361,33 @@ function handleKey(event) {
   if(key == 'e'){
     startDash();
   }
+  if(key == ' ' && RightRunning==true){
+      if(ThrowOn==false){
+      RightRunning=false;
+      clearInterval(toggleRightRun);
+      clearInterval(toggleLeftRun);
+      startThrow();
+      stopped=true;
+      currImage=1;
+      currRightRunCol=0;
+    }
+    }
+
+    else if(key == ' ' && DeflectOn==false){
+        if(ThrowOn==false){
+        clearInterval(toggleRightRun);
+        clearInterval(toggleLeftRun);
+        currImage=1;
+        startThrow();
+        stopped=true; 
+        RightRunning=false;
+      }
+    }
+  if(key == 'b'){
+    BotRunning=true;
+  }
+  if(key!='d' && key !=' ' && key!='e' && key !='j') 
+    stopped=true;
 }
 
 function drawRightRun() {
@@ -422,7 +499,7 @@ function clearActionBackground(){
 
 function clearBackground() {
   backgroundX-=6;
-  if(backgroundX < -395) 
+  if(backgroundX < -399) 
     backgroundX = 0;
   ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
 }
@@ -441,6 +518,7 @@ function drawThrow() {
   currShurikenImage++;
   currShurikenImage %= numbImages;
 }
+
   if(running==false){
      ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
   }
@@ -484,6 +562,15 @@ function Deflect() {
       currDeflectImage=-1;
     }
 }
+}
+
+
+var BotX = 600;
+var BotY = genjiY;
+var BotSpeed = 1;
+function drawBot(){
+  BotX=BotX-BotSpeed;
+  ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, genjiY-10, trainingBot.width-75, trainingBot.height-75);
 }
 
 </script>
