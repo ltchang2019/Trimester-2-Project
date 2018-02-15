@@ -114,7 +114,6 @@ document.body.onkeyup = function(e){
       currentlyRunning=false;
       clearInterval(toggleRightRun);
       stopped=true;
-      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
       currImage=1;
       currRightRunCol=0;
     }
@@ -162,14 +161,11 @@ function startRun(){
 
 //ANIMATION FUNCTIONS
 function animateThrow() {
-  clearActionBackground();
   Throw1();
   drawThrow();
 
   if(cycleCount==2 && currShurikenImage==5){
-    clearActionBackground();
     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-    running=false;
     currShurikenImage = 0;
     cycleCount = 0;
   }
@@ -302,7 +298,7 @@ function animateAll(){
       drawBot();
     }
   }
-  if(RightRunning==true && BotRunning!=true){
+  if(RightRunning==true && BotRunning!=true && ThrowOn!=true){
     if(RightRunning==true){
       clearBackground();
       drawRightRun();
@@ -313,29 +309,44 @@ function animateAll(){
       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
     }
   }
-  if(RightRunning==true && BotRunning==true){
+  if(RightRunning==true && BotRunning==true && ThrowOn!=true){
     if(RightRunning==true){
       currentlyRunning=true;
       clearBackground();
       drawRightRun();
       if(drawingBot==true){
-        BotSpeed=8;
+        BotSpeed=10;
         drawBot();
       }
       }
   }
     else if(RightRunning==false){
       clearActionBackground();
-      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+      if(ThrowOn==false){
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  }
       if(drawingBot==true){
        BotSpeed=1;
        drawBot();
       }
     }
+  if(ThrowOn==true && RightRunning==false){
+    animateThrow();
+    if(drawingBot==true){
+      drawBot();
+    }
+  }
+  else if (ThrowOn==false){
+      cycleCount=0;
+    }
 }
 
-setInterval(animateAll, 50);
-
+var animateSpeed = 80;
+var toggleAnimate;
+var animationInterval = function(){
+   toggleAnimate = setInterval(animateAll, animateSpeed);
+}
+animationInterval();
 //HANDLEKEYS
 
 var BotRunning = false;
@@ -349,7 +360,8 @@ function handleKey(event) {
   }
   //MOVE RIGHT
   else if(key == 'd') {
-    RightRunning=true;
+    if(ThrowOn!=true)
+     RightRunning=true;
     if(DeflectOn==false || ThrowOn==false){
     }
     if(RightRunning==false && DeflectOn==false && stopped==true && ThrowOn==false && LeftRunning==false){
@@ -361,28 +373,34 @@ function handleKey(event) {
   if(key == 'e'){
     startDash();
   }
-  if(key == ' ' && RightRunning==true){
-      if(ThrowOn==false){
+  if(key == ' '){
+      if(ThrowOn==false && cycleCount<2){
+      // RightRunning=false;
+      // clearInterval(toggleRightRun);
+      // clearInterval(toggleLeftRun);
+      // startThrow();
+      // stopped=true;
+      // currImage=1;
+      // currRightRunCol=0;
+      clearInterval(toggleAnimate);
+      animateSpeed = 40;
+      animationInterval();
+      ThrowOn=true; 
       RightRunning=false;
-      clearInterval(toggleRightRun);
-      clearInterval(toggleLeftRun);
-      startThrow();
-      stopped=true;
-      currImage=1;
-      currRightRunCol=0;
     }
     }
 
-    else if(key == ' ' && DeflectOn==false){
-        if(ThrowOn==false){
-        clearInterval(toggleRightRun);
-        clearInterval(toggleLeftRun);
-        currImage=1;
-        startThrow();
-        stopped=true; 
-        RightRunning=false;
-      }
-    }
+    // else if(key == ' ' && DeflectOn==false){
+    //     if(ThrowOn==false){
+    //     // clearInterval(toggleRightRun);
+    //     // clearInterval(toggleLeftRun);
+    //     // currImage=1;
+    //     // startThrow();
+    //     // stopped=true;
+    //     throwOn=true; 
+    //     RightRunning=false;
+    //   }
+    // }
   if(key == 'b'){
     BotRunning=true;
   }
@@ -478,20 +496,28 @@ else{
   ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
   ctx.restore();
 
-if(xC<1100+genjiX){
+if(xC>=800+genjiX){
+  ThrowOn=false;
+  clearInterval(toggleAnimate);
+  animateSpeed = 80;
+  animationInterval();
+}
+
+if(xC<800+genjiX){
   ThrowOn=true;
 }
 
 else{
-  clearInterval(toggleThrow);
-  clearActionBackground();
-  ThrowOn=false;
-  running=true;
+  // clearInterval(toggleThrow);
+  // clearActionBackground();
+  // alert(animateSpeed);
+  // running=true;
   xA = genjiX+100;
   xB = genjiX-70;
   xC = genjiX-220;
   xRealA = genjiX+100;
 }
+
 } 
 
 function clearActionBackground(){
@@ -507,19 +533,19 @@ function clearBackground() {
 function drawThrow() {
   var currRow = Math.floor(currShurikenImage / numbCols);
   var currCol = currShurikenImage % numbCols;
-  if(currShurikenImage==5 && cycleCount<3){
+
+  if(currShurikenImage==5 && cycleCount<2){
     currShurikenImage=1;
     currRow=0;
     currCol=0;
     cycleCount++;
   }
-  if(running==true){
+  if(cycleCount<2){
   ctx.drawImage( throwSheet, currCol*ThrowimageWidth , currRow*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
   currShurikenImage++;
   currShurikenImage %= numbImages;
 }
-
-  if(running==false){
+  else{
      ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
   }
 }
