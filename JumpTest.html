@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=600 height=600 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var runningSheet = new Image();
+runningSheet.src = "RunSheetRight.png";
+var jumpSheet = new Image();
+jumpSheet.src = "JumpSheet2.png";
+
+
+var numbImages = 11;
+var currImage = 1;
+var imageWidth = 150, imageHeight = 180;
+var numbRows = 2, numbCols = 7;
+var currCol = 0;
+var running = false;
+var counter = 0;
+
+// POSITION VARS
+var genjiX = 0;
+var genjiY = 300;
+
+addEventListener("click", startRun, false);
+
+function handleTheClick() {
+  running = !running;
+}
+
+function startRun(){
+  running = !running;
+  counter++;
+  if (counter<=1)
+    runRun();
+}
+
+var toggleRun;
+  var runRun = function(){
+  toggleRun = setInterval( animateRun, 80 );
+}
+
+function animateRun() {
+    if(running==true){
+    clearBackground();
+  	drawRun();
+  }
+}
+
+function clearBackground() {
+  ctx.fillStyle = "green";
+  ctx.fillRect( 0, 0, canvas.width, canvas.height);
+}
+
+currRow = 0;
+
+function drawRun() {
+   if(currImage<=9){
+    if(currImage==7){
+      currRow=1;
+      currCol=0;
+    }
+    if(currImage==1){
+      genjiY-=30
+       ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY-4, imageWidth, imageHeight );
+    }
+    else if(currImage==2){
+      genjiY-=40;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX+5, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==3){
+      genjiY-=30;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+    }
+    else if(currImage==4){
+      genjiY-=30;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+    }
+    else if (currImage==5){
+      genjiY-=20;
+       ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX+2, genjiY-4, imageWidth, imageHeight );
+    }
+    else if(currImage==6){
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==7){
+      genjiY+=20
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==8){
+      genjiY+=50;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==9){
+      genjiY+=30;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    }
+    else if(currImage==10){
+      genjiY+=30;
+      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    }
+
+      currCol++;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currCol=0;
+    currRow=0;
+    ctx.drawImage( runningSheet, 0, 0, 130, imageHeight, genjiX-5, genjiY-10, imageWidth, imageHeight );
+    currCol++;
+    currImage++;
+  }
+}
+
+
+</script>
+
+</body>
+</html>
