@@ -16,11 +16,10 @@ var jumpSheet = new Image();
 jumpSheet.src = "JumpSheet2.png";
 
 
-var numbImages = 11;
-var currImage = 1;
-var imageWidth = 150, imageHeight = 180;
+var currJumpImage = 1;
+var JumpImageWidth = 150, JumpImageHeight = 180;
 var numbRows = 2, numbCols = 7;
-var currCol = 0;
+var currJumpCol = 0;
 var running = false;
 var counter = 0;
 
@@ -49,7 +48,7 @@ var toggleRun;
 function animateRun() {
     if(running==true){
     clearBackground();
-  	drawRun();
+  	drawJump();
   }
 }
 
@@ -58,64 +57,64 @@ function clearBackground() {
   ctx.fillRect( 0, 0, canvas.width, canvas.height);
 }
 
-currRow = 0;
+var currRow = 0;
 
-function drawRun() {
-   if(currImage<=9){
-    if(currImage==7){
+function drawJump() {
+   if(currJumpImage<=9){
+    if(currJumpImage==7){
       currRow=1;
-      currCol=0;
+      currJumpCol=0;
     }
-    if(currImage==1){
+    if(currJumpImage==1){
       genjiY-=30
-       ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY-4, imageWidth, imageHeight );
+       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==2){
+    else if(currJumpImage==2){
       genjiY-=40;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX+5, genjiY, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX+5, genjiY, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==3){
+    else if(currJumpImage==3){
       genjiY-=30;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX-5, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==4){
+    else if(currJumpImage==4){
       genjiY-=30;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX-5, genjiY+4, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX-5, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
-    else if (currImage==5){
+    else if (currJumpImage==5){
       genjiY-=20;
-       ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX+2, genjiY-4, imageWidth, imageHeight );
+       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX+2, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==6){
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+    else if(currJumpImage==6){
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==7){
+    else if(currJumpImage==7){
       genjiY+=20
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==8){
+    else if(currJumpImage==8){
       genjiY+=50;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==9){
+    else if(currJumpImage==9){
       genjiY+=30;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
-    else if(currImage==10){
+    else if(currJumpImage==10){
       genjiY+=30;
-      ctx.drawImage( jumpSheet, currCol*imageWidth , currRow*imageHeight, imageWidth, imageHeight, genjiX, genjiY, imageWidth, imageHeight );
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
 
-      currCol++;
-      currImage++;
+      currJumpCol++;
+      currJumpImage++;
     }
   else{
-    currImage=1;
-    currCol=0;
+    currJumpImage=1;
+    currJumpCol=0;
     currRow=0;
-    ctx.drawImage( runningSheet, 0, 0, 130, imageHeight, genjiX-5, genjiY-10, imageWidth, imageHeight );
-    currCol++;
-    currImage++;
+    ctx.drawImage(runningSheet, 0, 0, 130, JumpImageHeight, genjiX-5, genjiY-10, JumpImageWidth, JumpImageHeight );
+    currJumpCol++;
+    currJumpImage++;
   }
 }
 
