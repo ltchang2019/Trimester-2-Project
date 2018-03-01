@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html>
+<style>canvas { border: 2px solid red; background-color: green;} </style>
+<body>
+
+<canvas width=1000 height=600 id="myCanvas"></canvas>
+<p id="demo"></p>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+//BACKGROUND IMAGE
+var canvasBackground = new Image();
+canvasBackground.src = "background.png";
+
+//DASH SHEET
+var dashRightSheet = new Image();
+dashRightSheet.src = "dashRight.png";
+
+//TRAINING BOT
+var trainingBot = new Image();
+trainingBot.src = "TrainingBot.png";
+
+//DASH VARIABLES
+var numbRightDashImages = 5;
+var currRightDashImage = 1;
+var DashWidth = 180, DashHeight = 100;
+var numbRightDashRows = 1, numbRightDashCols = 5;
+var currRightDashCol = 0;
+
+//SPRITESHEET FOR THROWING ANIMATION
+var throwSheet = new Image();
+throwSheet.src = "ShurikenSheet.png";
+var deflectsheet = new Image();
+deflectsheet.src = "DeflectSheet.png";
+var thingy = new Image();
+thingy.src = "Draw.png";
+//RUNNING SHEETS
+var runningRightSheet = new Image();
+runningRightSheet.src = "RunSheetRight.png";
+var runningLeftSheet = new Image();
+runningLeftSheet.src = "RunSheetLeft.png";
+
+
+//SHURIKEN IMAGES
+var shuriken = new Image();
+shuriken.src = 'shuriken1.jpg';
+var shuriken2 = new Image();
+shuriken2.src = 'shuriken2.jpg';
+var shuriken3 = new Image();
+shuriken3.src = 'shuriken3.jpg';
+
+//FROM THROWING ANIMATION
+var numbImages = 6;
+var currImage = 0;
+var ThrowimageWidth = 200, ThrowimageHeight = 204;
+var DeflectimageWidth = 165, DeflectimageHeight = 205;
+var numbRows = 2, numbCols = 3;
+var cycleCount = 0;
+var frameNumb = 0;
+var currDeflectImage = 0;
+var currShurikenImage = 0;
+
+//GENJI VARIABLES
+var genjiX = 250;
+var genjiY = 365;
+currRightRunCol = 0;
+currLeftRunCol = 4; 
+GenjiImageWidth = 130;
+GenjiImageHeight = 183;
+currImage=1;
+
+//CLEAR BACKGROUND VARS
+var backgroundX = 0;
+var RunFrameWidth = 400;
+var RunFrameHeight = 600;
+
+
+//FROM SHURIKEN ANIMATION
+var angleA = 0.0, angleB = 0.0, angleC = 0.0;
+var xA = genjiX+100, yA = genjiY+60, widthA = 20, heightA = 15;
+var xB = genjiX-70, yB = genjiY+60, widthB = 20, heightB = 15, widthA = 20, heightA = 15;
+var xC = genjiX-220, yC = genjiY+60, widthC = 20, heightC = 15;
+var counter = 0;
+var counter2 = 0;
+var ThrowOn = false;
+var DeflectOn = false;
+var running = true;
+
+//RUNNING STATES
+var RunningPossible = true;
+var movingRight=false;
+var LeftRunning=false;
+var DownRunning=false;
+
+//STATES
+var CurrentState = top;
+var stopped =  true;
+
+//JUMP VARIABLES
+var jumpSheet = new Image();
+jumpSheet.src = "JumpSheet2.png";
+var currJumpImage = 1;
+var JumpImageWidth = 150, JumpImageHeight = 180;
+var currJumpCol = 0;
+var currJumpRow = 0;
+
+//TRAP VARIABLES
+var openTrap = new Image();
+openTrap.src = "OpenTrap.png";
+var closedTrap = new Image();
+closedTrap.src = "ClosedTrap.png";
+
+//SHOOTING VARIABLES
+var shootSprite = new Image();
+shootSprite.src = "ShootingAnimations2.png";
+var bullet1 = new Image();
+bullet1.src = "Bullet.png";
+var bullet2 = new Image();
+bullet2.src = "Bullet.png";
+var bullet3 = new Image();
+bullet3.src = "Bullet.png";
+
+addEventListener("keydown", handleKey, false);
+
+document.body.onkeyup = function(e){
+
+//KEY UP FUNCTION FOR RUNNING
+    if(e.keyCode == 68 && movingRight==true){
+      dKeyDown=false;
+      movingRight=false;
+      currentlyRunning=false;
+      stopped=true;
+      currImage=1;
+      currRightRunCol=0;
+      acting=false;
+    }
+}
+
+function handleTheClick() {
+  running = !running;
+}
+
+//ANIMATION FUNCTIONS
+function animateThrow() {
+  Throw1();
+  drawThrow();
+
+  if(cycleCount==2 && currShurikenImage==5){
+    ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+    currShurikenImage = 0;
+    cycleCount = 0;
+  }
+}
+
+function animateDeflect(){
+  if(running) {
+    //DrawBlade();
+    clearStaticBackground();
+    Deflect();
+  }
+}
+
+var Dashed = false;
+
+//DASH
+function startDash(){
+    if(Dashed==false)
+      runDash();
+}
+var toggleRun;
+  var runDash = function(){
+  toggleRun = setInterval( animateDash, 30 );
+}
+
+var JustDashed = false;
+
+function animateDash() {
+    backgroundX -=20;
+    genjiX+=60;
+    clearMovingBackground();
+    drawDash();
+    Dashed=true;
+}
+
+function drawDash() {
+  var currRow = 0;
+  if(DashOn==true){
+   if(currRightDashImage<=5){
+    if(currRightDashImage==1){
+       ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth, DashHeight, genjiX, genjiY-4, DashWidth+ 20, DashHeight + 80);
+    }
+    else if(currRightDashImage==2){
+      ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth, DashHeight, genjiX+5, genjiY, DashWidth+ 20, DashHeight + 80);
+    }
+    else if(currRightDashImage==4){
+      ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth +5 , 0, DashWidth, DashHeight, genjiX-5, genjiY+4, DashWidth+ 20, DashHeight + 80);
+    }
+    else if (currRightDashImage==5){
+       ctx.drawImage( dashRightSheet, 0 , 1*DashHeight+10, 200, 140, genjiX+2, genjiY - 50, DashWidth + 20, DashHeight + 100);
+    }
+    else
+    ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth+ 20, 140, genjiX, genjiY, DashWidth, DashHeight + 80);
+      currRightDashCol++;
+      currRightDashImage++;
+    }
+  else{
+    if(dKeyDown==true){
+      movingRight=true;
+    }
+    ctx.drawImage( throwSheet, 0 , 0, 200, 204, genjiX-10, genjiY, 200, 204 );
+    clearInterval(toggleRun);
+    currRightDashImage=1;
+    currRightDashCol=0;
+    DashOn=false;
+    clearInterval(toggleAnimate);
+    animateSpeed = 80;
+    animationInterval();
+    JustDashed=true;
+  }
+}
+}
+var JumpXChange = 10;
+function drawJump() {
+   if(currJumpImage<=9){
+    if(currJumpImage==7){
+      currJumpRow=1;
+      currJumpCol=0;
+    }
+    if(currJumpImage==1){
+      genjiX+=JumpXChange;
+      genjiY-=30;
+       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==2){
+      genjiX+=JumpXChange;
+      genjiY-=40;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==3){
+      genjiX+=JumpXChange;
+      genjiY-=30;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==4){
+      genjiX+=JumpXChange;
+      genjiY-=30;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
+    }
+    else if (currJumpImage==5){
+      genjiX+=JumpXChange;
+      genjiY-=20;
+       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==6){
+      genjiX+=JumpXChange;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==7){
+      genjiX+=JumpXChange;
+      genjiY+=20
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==8){
+      genjiX+=JumpXChange;
+      genjiY+=40;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
+    }
+    else if(currJumpImage==9){
+      genjiX+=JumpXChange;
+      genjiY+=70;
+      ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
+      genjiY+=20;
+      JumpNow=false;
+      scrollSpeed=9;
+    }
+      currJumpCol++;
+      currJumpImage++;
+    }
+  else{
+    currJumpImage=1;
+    currJumpCol=0;
+    currJumpRow=0;
+    ctx.drawImage(runningRightSheet, 0, 0, 130, JumpImageHeight, genjiX-5, genjiY+20, JumpImageWidth, JumpImageHeight );
+  }
+}
+
+var frameSpeed;
+
+var toggleDeflect;
+var runDeflect = function(){
+    toggleDeflect = setInterval( animateDeflect, 90 );
+    frameSpeed = 90;
+}
+
+function animateBot(){
+  if(movingRight==false){
+    clearStaticBackground();
+  }
+    drawBot();
+  }
+
+
+var RandomBotGenNumb;
+
+var currentlyRunning = false;
+var drawingBot = false;
+var dashAble = true;
+var currShooting = false;
+
+var movingRight = false;
+var acting = false;
+
+//ANIMATE ALL
+function animateAll(){
+  //BACKGROUND CLEARING
+  if(movingRight==true){
+    scrolling=true;
+    clearMovingBackground();
+  }
+  else if(movingRight==false){
+    scrolling=false;
+    clearStaticBackground();
+  }
+
+//MOVING BULLETS AND SHOOTING ANIMATION
+if(bulletsOnScreen && bulletsMoving){
+  drawBullets();
+}
+shootTimer();
+  //DRAWING BOT
+  if(BotRunning==true){
+    if(currShooting==false)
+      drawBot();
+    else{
+      DrawShooting();
+    }
+  }
+  //KEEP TRACK OF BULLETS
+  if(bulletsMoving==false){
+     bullet1X = BotX;
+     bullet2X = BotX+60;
+     bullet3X = BotX+120;
+  }
+  if(acting==true){
+  if(movingRight==true && runningRight==true){
+    drawRightRun();
+  }
+  if(ThrowOn==true){
+    Throw1();
+    drawThrow();
+  }
+  }
+  else{
+    ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+ }
+}
+  // if(genjiX<=250){
+  //   dashAble=true;
+  // }
+  // else{
+  //   dashAble=false;
+  // }
+  // RandomBotGenNumb = Math.random() * 5;
+  // if(BotRunning==true){
+  //   drawingBot=true;
+  //   if(currentlyRunning==false){
+  //     if(justShotThird){
+  //         currShooting=false;
+  //         justShotThird=false;
+  //     }
+  //     clearStaticBackground();
+  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //   if(ThrowOn==false && movingRight==false){
+  //       BotSpeed = scrollSpeed - 5;
+  //   }
+  //   if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  //     if(currShooting==false && JumpNow==false){
+  //       drawBot();
+  //     }
+  //     else if(currentlyThrowing==false && JumpNow==false && currShooting==true){
+  //       DrawShooting();
+  //     }
+  //     else{
+  //       currShooting=false;
+  //       drawBot();
+  //   
+  //   }
+  //   if(BotX<-120)
+  //     BotX = 1000 + 200*RandomBotGenNumb;
+  // }
+    
+  // if(movingRight==true && BotRunning!=true && ThrowOn!=true && DashOn!=true && JumpNow!=true && DeflectOn==false && stuck==false){
+  //   if(movingRight==true){
+  //     clearMovingBackground();
+  //     drawRightRun();
+  //     if(drawingBot==true)
+  //       drawBot();
+  //     if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  //   }
+  //   else if (stopped==true){
+  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //   }
+  // }
+  // else{
+  //   if(stuckCounter%10==0){
+  //     stuck=false;
+  //   }
+  //   else{
+  //   stuckCounter++;
+  //   clearStaticBackground();
+  //   ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //   ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+  // }
+  // }
+  // if(movingRight==true && BotRunning==true && ThrowOn!=true && JumpNow!=true && DeflectOn==false){
+  //   if(movingRight==true){
+  //     if(stuck==false){
+  //     currentlyRunning=true;
+  //     clearMovingBackground();
+  //     drawRightRun();
+  //     if(drawingBot==true){
+  //         if(justShotThird){
+  //           currShooting=false;
+  //           justShotThird=false;
+  //         }
+  //         if(currShooting==false){
+  //           BotSpeed=16;
+  //            drawBot();
+  //           }
+  //         else{
+  //           if(currentlyThrowing==false){
+  //           BotSpeed=16;
+  //           DrawShooting();
+  //         }
+  //       }
+  //     }
+  //     if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  //   }
+  //   else{
+  //     if(stuckCounter%10==0){
+  //     stuck=false;
+  //   }
+  //   else{
+  //   clearStaticBackground();
+  //   ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //   ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+  //   }
+  //   if(drawingBot==true){
+  //       drawBot();
+  //     }
+  // }
+  // }
+  // }
+  // ///////NOT SURE ABOUT THE CURRSHOOTING THING
+  //   else if(movingRight==false && currShooting==false){
+  //     clearStaticBackground();
+  //     if(ThrowOn==false && DashOn==false && JumpNow==false){
+  //     if(JustDashed==false)
+  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //     else if(JustDashed==true){
+  //       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-70, genjiY, ThrowimageWidth, ThrowimageHeight );
+  //     }
+  //   }
+  //     if(drawingBot==true && JumpNow==false){
+  //      BotSpeed=5;
+  //      drawBot();
+  //     }
+  //     if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  //   }
+  // if(ThrowOn==true && movingRight==false){
+  //   animateThrow();
+  //   if(drawingBot==true){
+  //     BotSpeed = scrollSpeed-9;
+  //   }
+  //   if(DrawingTrap==true){
+  //       drawTrap();
+  //   }
+  // }
+  // else if (ThrowOn==false){
+  //     cycleCount=0;
+  //   }
+  // if(DashOn==true){
+  //   drawDash();
+  //   backgroundX -=20;
+  //   genjiX+=60;
+  //   Dashed=true;
+  //   if(drawingBot==true){
+  //      BotSpeed=22;
+  //      drawBot();
+  //     }
+  //   if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  // }
+
+  // if(JumpNow==true){
+  //   if(movingRight==false){
+  //     JumpXChange=0;
+  //     drawJump();
+  //     if(drawingBot==true){
+  //         if(justShotThird){
+  //           currShooting=false;
+  //           justShotThird=false;
+  //         }
+  //         if(currShooting==false){
+  //           BotSpeed=5.5;
+  //           drawBot();
+  //           }
+  //         else{
+  //           if(currentlyThrowing==false){
+  //            BotSpeed=5.5;
+  //            DrawShooting();
+  //         }
+  //       }
+  //     }
+  //   }
+  //   else{
+  //     JumpXChange=0;
+  //     BotSpeed=18;
+  //     scrollSpeed=15;
+  //     clearMovingBackground();
+  //     drawJump();
+  //     if(drawingBot==true){
+  //      drawBot();
+  //     }
+  //   }
+  //   if(DashOn==true){
+  //     drawDash();
+  //   }
+  //   if(DrawingTrap==true){
+  //       drawTrap();
+  //   }
+  //  }
+  // if(DeflectOn==true){
+  //   clearStaticBackground();
+  //   Deflect();
+  //   if(drawingBot==true){
+  //      drawBot();
+  //     }
+  //   if(DrawingTrap==true){
+  //       drawTrap();
+  //     }
+  // }
+  // if(currentlyThrowing==false && JumpNow==false){
+  //   drawBullets();
+  // }
+  // else{
+  //   bulletsOnScreen=false;
+  //   currShooting=false;
+  // }
+var shootTime = -1;
+function shootTimer(){
+  if(bulletsOnScreen && bulletsMoving==false){
+  shootTime++;
+  if(shootTime%10==0){
+    if(BotRunning){
+      currShooting=true;
+    }
+  }
+  }
+}
+
+var animateSpeed = 80;
+var toggleAnimate;
+var animationInterval = function(){
+   toggleAnimate = setInterval(animateAll, animateSpeed);
+}
+animationInterval();
+//HANDLEKEYS
+
+var BotRunning = false;
+var DashOn = false;
+var JumpNow = false;
+//KEYDOWN!?!?!??!?!?!??!?!?
+
+var dKeyDown = false;
+var runningRight = false;
+
+function handleKey(event) {
+  var key = event.key;
+  // runBots();
+  //JUMP
+   if (key == 'w') {
+    if(ThrowOn==false && DashOn==false){
+      acting=true;
+      JumpNow=true;
+      //movingRight=false;
+      ThrowOn=false;
+      DashOn=false;
+  }
+  }
+  //MOVE RIGHT
+  if(key == 'd') {
+    acting=true;
+    dKeyDown=true;
+    JustDashed=false;
+    if(ThrowOn!=true){
+     animateSpeed=80;
+     movingRight=true;
+     runningRight=true;
+    }
+  }
+
+  if(key == 'e'){
+    
+    if(dashAble==true && genjiX<=250){
+      acting=true;
+      movingRight=true;
+      stopped=false;
+      clearInterval(toggleAnimate);
+      animateSpeed = 30;
+      animationInterval();
+      DashOn=true;
+      Dashed=true;
+  }
+  }
+  if(key == ' '){
+      acting=true;
+      JustDashed=false;
+      if(ThrowOn==false && cycleCount<2 && JumpNow==false){
+      clearInterval(toggleAnimate);
+      animateSpeed = 40;
+      animationInterval();
+      ThrowOn=true; 
+      movingRight=false;
+    }
+    }
+  if(key == 'q'){
+    if(JumpNow==false && ThrowOn==false){
+    movingRight=false;
+    DeflectOn=true;
+    acting=true;
+    }
+  }
+
+  if(key!='q' && key!=' ' && key!='e' && key!='d'){
+    acting=false;
+    movingRight=false;
+  }
+  if(key == 'b'){
+    BotRunning=true;
+  }
+  if(key == 't'){
+    DrawingTrap=true;
+  }
+  // if(key == 's'){
+  //   currShooting=true;
+  //   bulletsOnScreen=true;
+  // }
+  if(key!='d' && key !=' ' && key!='e' && key !='w') 
+    stopped=true;
+}
+
+
+function startShooting(){
+  currShooting=true;
+  bulletsOnScreen=true;
+}
+
+
+function drawRightRun() {
+  stopped = false;
+  if(genjiX>=250){
+    genjiX-=10;
+    backgroundX-=10;
+  }
+  else if(genjiX<=250){
+    Dashed=false;
+  }
+
+   if(currImage<=5&&currRightRunCol<5){
+    if(currImage==1){
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==2){
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+5, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if(currImage==4){
+      ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY+14, GenjiImageWidth, GenjiImageHeight );
+    }
+    else if (currImage==5){
+       ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX+2, genjiY+6, GenjiImageWidth, GenjiImageHeight );
+    }
+    else
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX, genjiY+10, GenjiImageWidth, GenjiImageHeight );
+
+      currRightRunCol++;
+      currImage++;
+    }
+  else{
+    currImage=1;
+    currRightRunCol=0;
+    ctx.drawImage( runningRightSheet, currRightRunCol*GenjiImageWidth , 0, GenjiImageWidth, GenjiImageHeight, genjiX-5, genjiY, GenjiImageWidth, GenjiImageHeight );
+    currRightRunCol++;
+    currImage++;
+  }
+}
+
+
+var xRealA = genjiX+100;
+
+function Throw1() {
+  if(AHitTarget==true){
+    widthA = 0;
+    heightA = 0;
+  }
+  ctx.save();
+  ctx.translate( xA + widthA/2, yA + heightA/2 );
+  xA += 75;
+  angleA += .8;
+  ctx.rotate( angleA );
+  ctx.drawImage(shuriken, -widthA/2, -heightA/2, widthA, heightA);
+  ctx.restore();
+
+  
+if(xB<xRealA + widthA/2 || BHitTarget==true){
+    widthB = 0;
+    heightB = 0;
+  }
+  else {
+    widthB = 20;
+    heightB = 15;
+  }
+
+  ctx.save();
+  ctx.translate( xB + widthB/2, yB + heightB/2 );
+  xB += 75;
+  angleB += .8;
+  ctx.rotate( angleB );
+  ctx.drawImage(shuriken2,-widthB/2, -heightB/2 , widthB, heightB);
+  ctx.restore();
+
+
+if(xC< xRealA + widthA/2 || CHitTarget==true){
+  widthC = 0;
+  heightC = 0;
+  }
+ else{
+  widthC = 20;
+  heightC = 15;
+}
+
+  ctx.save();
+  ctx.translate(xC + widthC/2, yC + heightC/2 );
+  xC += 75;
+  angleC += .8;
+  ctx.rotate( angleC );
+  ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
+  ctx.restore();
+
+if(xC>=800+genjiX){
+  currentlyThrowing=false;
+  ThrowOn=false;
+  clearInterval(toggleAnimate);
+  animateSpeed = 80;
+  animationInterval();
+  cycleCount=0;
+  acting=false;
+}
+
+if(xC<800+genjiX){
+  currentlyThrowing=true;
+  ThrowOn=true;
+}
+
+else{
+  AHitTarget = false;
+  BHitTarget = false;
+  CHitTarget = false;
+  widthA = 20;
+  widthB = 20;
+  widthC = 20;
+  heightA = 15;
+  heightB = 15;
+  heightC = 15;
+  xA = genjiX+100;
+  xB = genjiX-70;
+  xC = genjiX-220;
+  xRealA = genjiX+100;
+}
+
+if(xA>=BotX && xA<=BotX+trainingBot.width){
+  AHitTarget=true;
+}
+if(xB>=BotX && xB<=BotX+trainingBot.width){
+  BHitTarget=true;
+}
+if(xC>=BotX && xC<=BotX+trainingBot.width){
+  CHitTarget=true;
+}
+} 
+
+var currentlyThrowing = false;
+var AHitTarget = false;
+var BHitTarget = false;
+var CHitTarget = false;
+
+function clearStaticBackground(){
+  ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
+}
+
+var scrollSpeed = 9;
+var scrolling = false;
+
+function clearMovingBackground() {
+  scrolling=true;
+  backgroundX-=scrollSpeed;
+  if(backgroundX < -399) 
+    backgroundX = 0;
+  ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
+  }
+
+function drawThrow() {
+
+  var currRow = Math.floor(currShurikenImage / numbCols);
+  var currCol = currShurikenImage % numbCols;
+
+  if(currShurikenImage==5 && cycleCount<2){
+    currShurikenImage=1;
+    currRow=0;
+    currCol=0;
+    cycleCount++;
+  }
+  if(cycleCount<2){
+  ctx.drawImage( throwSheet, currCol*ThrowimageWidth , currRow*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  currShurikenImage++;
+  currShurikenImage %= numbImages;
+}
+  else{
+     ctx.drawImage( throwSheet, 0*ThrowimageWidth , 0*ThrowimageHeight, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+  }
+}
+
+////////DEFLECT STUFF
+function DrawBlade(){
+    ctx.drawImage( thingy, 0, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+}
+
+function SheathBlade (){ 
+  ctx.drawImage( thingy, 170, 0, 165, 205, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+  frameNumb=0;
+}
+
+function Deflect() {
+  DeflectOn=true;
+  if (currDeflectImage==-1){
+    DrawBlade();
+    currDeflectImage++;
+  }
+  else {
+    if(frameNumb<12){
+      var currRow = Math.floor(currDeflectImage / numbCols);
+      var currCol = currDeflectImage % numbCols;
+      if(frameNumb==1 || frameNumb==7){
+      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY-10, DeflectimageWidth, DeflectimageHeight );
+      }
+      else{
+      ctx.drawImage( deflectsheet, currCol*DeflectimageWidth, currRow*DeflectimageHeight, DeflectimageWidth,DeflectimageHeight, genjiX, genjiY, DeflectimageWidth, DeflectimageHeight );
+      }
+      currDeflectImage++;
+      currDeflectImage %= numbImages;
+      frameNumb++;
+    }
+
+    else {
+      SheathBlade();
+      clearInterval(toggleDeflect);
+      DeflectOn=false;
+      currDeflectImage=-1;
+    }
+}
+}
+
+var BotX = 1000;
+var BotY = genjiY;
+var BotSpeed = scrollSpeed;
+function drawBot(){
+  BotX=BotX-BotSpeed;
+  ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, 355, trainingBot.width-75, trainingBot.height-75);
+}
+
+var TrapX = 1020;
+var TrapY = 470;
+var TrapSpeed = scrollSpeed;
+var DrawingTrap=false;
+var stuck = false;
+var stuckCounter = 0;
+function drawTrap(){
+    DrawingTrap=true;
+
+  if(TrapX<-50){
+    DrawingTrap=false;
+    TrapX=1020;
+  }
+  if(scrolling==true){
+  TrapX-=(scrollSpeed+13);
+}
+  if( ((genjiX+35)<=TrapX && (genjiX+60)>=(TrapX)) && genjiY==365){
+    stuckCounter++;
+    stuck=true;
+    ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+  }
+  else
+  ctx.drawImage( openTrap, 0, 0, openTrap.width, openTrap.height, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+}
+
+var shootingCounter = 0;
+var justShotThird = false;
+
+function DrawShooting(){
+  bulletsMoving=true;
+  bulletsOnScreen=true;
+  shootingCounter++;
+  BotX=BotX-BotSpeed;
+  if(shootingCounter==1){
+      ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-100);
+  }
+  else if(shootingCounter==2){
+    ctx.drawImage( shootSprite, (shootSprite.width)/2, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX-30, 355, (shootSprite.width)/3, shootSprite.height-100);
+  }
+  else if(shootingCounter==3){
+    ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-100);
+    currShooting=false;
+    justShotThird=true;
+  }
+}
+
+var bullet1X = BotX;
+var bullet2X = BotX+60;
+var bullet3X = BotX+120;
+var bulletsMoving = false;
+var bulletsOnScreen = true;
+
+function drawBullets(){
+  if(bulletsOnScreen==true && BotRunning==true && stuck==false && JumpNow==false){
+  bulletsMoving=true;
+  bullet1X-=90;
+  bullet2X-=90;
+  bullet3X-=90;
+  if(bullet1X<=BotX)
+    ctx.drawImage(bullet1, 0, 0, 75, 50, bullet1X, 440, 25, 10);
+  if(bullet2X<=BotX)
+    ctx.drawImage(bullet2, 0, 0, 75, 50, bullet2X, 440, 25, 10);
+  if(bullet3X<=BotX)
+    ctx.drawImage(bullet3, 0, 0, 75, 50, bullet3X, 440, 25, 10);
+
+  if(bulletsMoving==false || bullet3X<-20-BotX){
+     bullet1X = BotX;
+     bullet2X = BotX+60;
+     bullet3X = BotX+120;
+     bulletsOnScreen=true;
+     bulletsMoving=false;
+     shootingCounter=0;
+  }
+}
+}
+
+</script>
+
+</body>
+</html> 
