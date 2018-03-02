@@ -63,7 +63,7 @@ var currDeflectImage = 0;
 var currShurikenImage = 0;
 
 //GENJI VARIABLES
-var genjiX = 250;
+var genjiX = 230;
 var genjiY = 365;
 currRightRunCol = 0;
 currLeftRunCol = 4; 
@@ -135,6 +135,7 @@ document.body.onkeyup = function(e){
       currImage=1;
       currRightRunCol=0;
       acting=false;
+      BotSpeed=scrollSpeed;
     }
 }
 
@@ -221,7 +222,6 @@ function drawDash() {
   }
 }
 }
-var JumpXChange = 10;
 function drawJump() {
    if(currJumpImage<=9){
     if(currJumpImage==7){
@@ -229,51 +229,44 @@ function drawJump() {
       currJumpCol=0;
     }
     if(currJumpImage==1){
-      genjiX+=JumpXChange;
       genjiY-=30;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==2){
-      genjiX+=JumpXChange;
       genjiY-=40;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==3){
-      genjiX+=JumpXChange;
       genjiY-=30;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==4){
-      genjiX+=JumpXChange;
       genjiY-=30;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if (currJumpImage==5){
-      genjiX+=JumpXChange;
       genjiY-=20;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==6){
-      genjiX+=JumpXChange;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==7){
-      genjiX+=JumpXChange;
       genjiY+=20
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==8){
-      genjiX+=JumpXChange;
       genjiY+=40;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==9){
-      genjiX+=JumpXChange;
       genjiY+=70;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
       genjiY+=20;
       JumpNow=false;
+      acting=false;
       scrollSpeed=9;
+      botspeed=scrollSpeed;
     }
       currJumpCol++;
       currJumpImage++;
@@ -318,6 +311,7 @@ function animateAll(){
   if(movingRight==true){
     scrolling=true;
     clearMovingBackground();
+    acting=true;
   }
   else if(movingRight==false){
     scrolling=false;
@@ -333,236 +327,66 @@ shootTimer();
   if(BotRunning==true){
     if(currShooting==false)
       drawBot();
-    else{
+    else if(currentlyThrowing==false && ThrowOn==false){
       DrawShooting();
     }
+    else
+      drawBot();
   }
+  // alert(JumpNow + ' ' + acting);
   //KEEP TRACK OF BULLETS
   if(bulletsMoving==false){
      bullet1X = BotX;
      bullet2X = BotX+60;
      bullet3X = BotX+120;
   }
+  bulletHitReset();
   if(acting==true){
-  if(movingRight==true && runningRight==true){
+  if(movingRight==true && runningRight==true && JumpNow==false){
     drawRightRun();
+    BotSpeed=scrollSpeed+3;
   }
-  if(ThrowOn==true){
+  if (ThrowOn==true){
+    BotSpeed=scrollSpeed-5;
     Throw1();
     drawThrow();
   }
+  //JUMPING WITHOUT SCROLL
+  else if(JumpNow==true && movingRight==false){
+    drawJump();
   }
+  //JUMPING WITH SCROLL
+  else if(JumpNow==true && movingRight==true){
+    drawJump();
+    scrollSpeed=scrollSpeed+5;
+  }
+  //IF DEFLECT IS ON
+  else if(DeflectOn && JumpNow==false){
+    Deflect();
+    if(bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20){
+      bulletSpeed=-90;
+    }
+  }
+  }
+  //IF NO CHARACTER MOVEMENT
   else{
-    ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+      ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
  }
+ ShowGenjiHealth();
 }
-  // if(genjiX<=250){
-  //   dashAble=true;
-  // }
-  // else{
-  //   dashAble=false;
-  // }
-  // RandomBotGenNumb = Math.random() * 5;
-  // if(BotRunning==true){
-  //   drawingBot=true;
-  //   if(currentlyRunning==false){
-  //     if(justShotThird){
-  //         currShooting=false;
-  //         justShotThird=false;
-  //     }
-  //     clearStaticBackground();
-  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //   if(ThrowOn==false && movingRight==false){
-  //       BotSpeed = scrollSpeed - 5;
-  //   }
-  //   if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  //     if(currShooting==false && JumpNow==false){
-  //       drawBot();
-  //     }
-  //     else if(currentlyThrowing==false && JumpNow==false && currShooting==true){
-  //       DrawShooting();
-  //     }
-  //     else{
-  //       currShooting=false;
-  //       drawBot();
-  //   
-  //   }
-  //   if(BotX<-120)
-  //     BotX = 1000 + 200*RandomBotGenNumb;
-  // }
-    
-  // if(movingRight==true && BotRunning!=true && ThrowOn!=true && DashOn!=true && JumpNow!=true && DeflectOn==false && stuck==false){
-  //   if(movingRight==true){
-  //     clearMovingBackground();
-  //     drawRightRun();
-  //     if(drawingBot==true)
-  //       drawBot();
-  //     if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  //   }
-  //   else if (stopped==true){
-  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-10, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //   }
-  // }
-  // else{
-  //   if(stuckCounter%10==0){
-  //     stuck=false;
-  //   }
-  //   else{
-  //   stuckCounter++;
-  //   clearStaticBackground();
-  //   ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //   ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
-  // }
-  // }
-  // if(movingRight==true && BotRunning==true && ThrowOn!=true && JumpNow!=true && DeflectOn==false){
-  //   if(movingRight==true){
-  //     if(stuck==false){
-  //     currentlyRunning=true;
-  //     clearMovingBackground();
-  //     drawRightRun();
-  //     if(drawingBot==true){
-  //         if(justShotThird){
-  //           currShooting=false;
-  //           justShotThird=false;
-  //         }
-  //         if(currShooting==false){
-  //           BotSpeed=16;
-  //            drawBot();
-  //           }
-  //         else{
-  //           if(currentlyThrowing==false){
-  //           BotSpeed=16;
-  //           DrawShooting();
-  //         }
-  //       }
-  //     }
-  //     if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  //   }
-  //   else{
-  //     if(stuckCounter%10==0){
-  //     stuck=false;
-  //   }
-  //   else{
-  //   clearStaticBackground();
-  //   ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //   ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
-  //   }
-  //   if(drawingBot==true){
-  //       drawBot();
-  //     }
-  // }
-  // }
-  // }
-  // ///////NOT SURE ABOUT THE CURRSHOOTING THING
-  //   else if(movingRight==false && currShooting==false){
-  //     clearStaticBackground();
-  //     if(ThrowOn==false && DashOn==false && JumpNow==false){
-  //     if(JustDashed==false)
-  //     ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //     else if(JustDashed==true){
-  //       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX-70, genjiY, ThrowimageWidth, ThrowimageHeight );
-  //     }
-  //   }
-  //     if(drawingBot==true && JumpNow==false){
-  //      BotSpeed=5;
-  //      drawBot();
-  //     }
-  //     if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  //   }
-  // if(ThrowOn==true && movingRight==false){
-  //   animateThrow();
-  //   if(drawingBot==true){
-  //     BotSpeed = scrollSpeed-9;
-  //   }
-  //   if(DrawingTrap==true){
-  //       drawTrap();
-  //   }
-  // }
-  // else if (ThrowOn==false){
-  //     cycleCount=0;
-  //   }
-  // if(DashOn==true){
-  //   drawDash();
-  //   backgroundX -=20;
-  //   genjiX+=60;
-  //   Dashed=true;
-  //   if(drawingBot==true){
-  //      BotSpeed=22;
-  //      drawBot();
-  //     }
-  //   if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  // }
 
-  // if(JumpNow==true){
-  //   if(movingRight==false){
-  //     JumpXChange=0;
-  //     drawJump();
-  //     if(drawingBot==true){
-  //         if(justShotThird){
-  //           currShooting=false;
-  //           justShotThird=false;
-  //         }
-  //         if(currShooting==false){
-  //           BotSpeed=5.5;
-  //           drawBot();
-  //           }
-  //         else{
-  //           if(currentlyThrowing==false){
-  //            BotSpeed=5.5;
-  //            DrawShooting();
-  //         }
-  //       }
-  //     }
-  //   }
-  //   else{
-  //     JumpXChange=0;
-  //     BotSpeed=18;
-  //     scrollSpeed=15;
-  //     clearMovingBackground();
-  //     drawJump();
-  //     if(drawingBot==true){
-  //      drawBot();
-  //     }
-  //   }
-  //   if(DashOn==true){
-  //     drawDash();
-  //   }
-  //   if(DrawingTrap==true){
-  //       drawTrap();
-  //   }
-  //  }
-  // if(DeflectOn==true){
-  //   clearStaticBackground();
-  //   Deflect();
-  //   if(drawingBot==true){
-  //      drawBot();
-  //     }
-  //   if(DrawingTrap==true){
-  //       drawTrap();
-  //     }
-  // }
-  // if(currentlyThrowing==false && JumpNow==false){
-  //   drawBullets();
-  // }
-  // else{
-  //   bulletsOnScreen=false;
-  //   currShooting=false;
-  // }
+function bulletHitReset(){
+  if(DeflectOn==false && (bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20) ){
+        resetBulletPos();
+        genjiHealth-=25;
+  }
+}
+  
 var shootTime = -1;
 function shootTimer(){
   if(bulletsOnScreen && bulletsMoving==false){
   shootTime++;
-  if(shootTime%10==0){
+  if(shootTime%6==0){
     if(BotRunning){
       currShooting=true;
     }
@@ -643,7 +467,7 @@ function handleKey(event) {
     }
   }
 
-  if(key!='q' && key!=' ' && key!='e' && key!='d'){
+  if(key!='q' && key!=' ' && key!='e' && key!='d' && key!='w'){
     acting=false;
     movingRight=false;
   }
@@ -852,6 +676,7 @@ function SheathBlade (){
 }
 
 function Deflect() {
+  movingRight=false;
   DeflectOn=true;
   if (currDeflectImage==-1){
     DrawBlade();
@@ -877,6 +702,7 @@ function Deflect() {
       clearInterval(toggleDeflect);
       DeflectOn=false;
       currDeflectImage=-1;
+      acting=false;
     }
 }
 }
@@ -923,13 +749,13 @@ function DrawShooting(){
   shootingCounter++;
   BotX=BotX-BotSpeed;
   if(shootingCounter==1){
-      ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-100);
+      ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-110);
   }
   else if(shootingCounter==2){
-    ctx.drawImage( shootSprite, (shootSprite.width)/2, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX-30, 355, (shootSprite.width)/3, shootSprite.height-100);
+    ctx.drawImage( shootSprite, (shootSprite.width)/2, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX-30, 355, (shootSprite.width)/3, shootSprite.height-110);
   }
   else if(shootingCounter==3){
-    ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-100);
+    ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-110);
     currShooting=false;
     justShotThird=true;
   }
@@ -940,13 +766,14 @@ var bullet2X = BotX+60;
 var bullet3X = BotX+120;
 var bulletsMoving = false;
 var bulletsOnScreen = true;
+var bulletSpeed = 90;
 
 function drawBullets(){
-  if(bulletsOnScreen==true && BotRunning==true && stuck==false && JumpNow==false){
+  if(bulletsOnScreen==true && BotRunning==true && stuck==false){
   bulletsMoving=true;
-  bullet1X-=90;
-  bullet2X-=90;
-  bullet3X-=90;
+  bullet1X-=bulletSpeed;
+  bullet2X-=bulletSpeed;
+  bullet3X-=bulletSpeed;
   if(bullet1X<=BotX)
     ctx.drawImage(bullet1, 0, 0, 75, 50, bullet1X, 440, 25, 10);
   if(bullet2X<=BotX)
@@ -955,14 +782,33 @@ function drawBullets(){
     ctx.drawImage(bullet3, 0, 0, 75, 50, bullet3X, 440, 25, 10);
 
   if(bulletsMoving==false || bullet3X<-20-BotX){
-     bullet1X = BotX;
-     bullet2X = BotX+60;
-     bullet3X = BotX+120;
-     bulletsOnScreen=true;
-     bulletsMoving=false;
-     shootingCounter=0;
+     resetBulletPos();
   }
+  CheckBulletsAfterDeflect();
 }
+}
+
+function resetBulletPos(){
+  bullet1X = BotX;
+  bullet2X = BotX+60;
+  bullet3X = BotX+120;
+  bulletsOnScreen=true;
+  bulletsMoving=false;
+  shootingCounter=0;
+  bulletSpeed=90;
+}
+
+function CheckBulletsAfterDeflect(){
+  if(bulletSpeed==-90 && (bullet1X>=BotX && bullet1X<=BotX+trainingBot.width))
+    resetBulletPos();
+}
+
+var genjiHealth = 100;
+healthBarWidth = 100;
+healthBarHeight = 30;
+function ShowGenjiHealth(){
+  ctx.fillStyle = "red";
+  ctx.fillRect(0, 0, healthBarWidth, healthBarHeight);
 }
 
 </script>
