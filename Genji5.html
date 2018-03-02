@@ -134,7 +134,8 @@ document.body.onkeyup = function(e){
       stopped=true;
       currImage=1;
       currRightRunCol=0;
-      acting=false;
+      if(JumpNow==false)
+        acting=false;
       BotSpeed=scrollSpeed;
     }
 }
@@ -265,7 +266,7 @@ function drawJump() {
       genjiY+=20;
       JumpNow=false;
       acting=false;
-      scrollSpeed=9;
+      scrollSpeed=7;
       botspeed=scrollSpeed;
     }
       currJumpCol++;
@@ -307,6 +308,7 @@ var acting = false;
 
 //ANIMATE ALL
 function animateAll(){
+  scrollSpeed=7;
   //BACKGROUND CLEARING
   if(movingRight==true){
     scrolling=true;
@@ -331,10 +333,15 @@ shootTimer();
   }
   //DRAWING BOT
   if(BotRunning==true){
+     ShowBotHealth();
+     ShurikensHit();
     if(currShooting==false && (BotX>=genjiX+GenjiImageWidth))
       drawBot();
     else if(currentlyThrowing==false && ThrowOn==false && BotX-genjiX>=200){
-      DrawShooting();
+      if(DeflectOn==true)
+        drawBot();
+      else
+        DrawShooting();
     }
     else
       drawBot();
@@ -363,7 +370,7 @@ shootTimer();
   //JUMPING WITH SCROLL
   else if(JumpNow==true && movingRight==true){
     drawJump();
-    scrollSpeed=scrollSpeed+5;
+    scrollSpeed=10;
   }
   //IF DEFLECT IS ON
   else if(DeflectOn && JumpNow==false){
@@ -377,7 +384,6 @@ shootTimer();
   else{
       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
  }
- BotExplosion();
  ShowGenjiHealth();
 }
 
@@ -391,9 +397,9 @@ function bulletHitReset(){
   
 var shootTime = 0;
 function shootTimer(){
-  if(BotRunning && (BotX-genjiX>=200)){
+  if(BotRunning && (BotX-genjiX>=200) && DeflectOn==false && ThrowOn==false){
   shootTime++;
-  if(shootTime%15==0){
+  if(shootTime%20==0){
       currShooting=true;
   }
   }
@@ -537,6 +543,13 @@ function drawRightRun() {
   }
 }
 
+function ShurikensHit(){
+  if(AHitTarget==true){
+    botHealth-=15;
+    BotHealthBarWidth-=15;
+  }
+}
+
 
 var xRealA = genjiX+100;
 
@@ -620,6 +633,7 @@ else{
   xRealA = genjiX+100;
 }
 
+
 if(xA>=BotX && xA<=BotX+trainingBot.width){
   AHitTarget=true;
 }
@@ -640,7 +654,7 @@ function clearStaticBackground(){
   ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
 }
 
-var scrollSpeed = 9;
+var scrollSpeed = 7;
 var scrolling = false;
 
 function clearMovingBackground() {
@@ -715,10 +729,12 @@ function Deflect() {
 
 var BotX = 1000;
 var BotY = genjiY;
-var BotSpeed = scrollSpeed-2;
+var BotSpeed = scrollSpeed;
+var BotWidth = 170;
+var BotHeight = 220;
 function drawBot(){
   BotX=BotX-BotSpeed;
-  ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, 355, trainingBot.width-75, trainingBot.height-75);
+  ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, 355, BotWidth, BotHeight);
 }
 
 var TrapX = 1020;
@@ -750,18 +766,24 @@ var shootingCounter = 0;
 var justShotThird = false;
 
 function DrawShooting(){
+  if(BotX<1100){
   bulletsMoving=true;
   bulletsOnScreen=true;
+  } 
+  else{
+    bulletsMoving=false;
+    bulletsOnScreen=false;
+  }
   shootingCounter++;
   BotX=BotX-BotSpeed;
   if(shootingCounter==1){
-      ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-110);
+      ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2, shootSprite.height, BotX, 355, BotWidth, BotHeight-20);
   }
   else if(shootingCounter==2){
-    ctx.drawImage( shootSprite, (shootSprite.width)/2, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX-30, 355, (shootSprite.width)/3, shootSprite.height-110);
+    ctx.drawImage( shootSprite, (shootSprite.width)/2, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX-30, 355, BotWidth, BotHeight-20);
   }
   else if(shootingCounter==3){
-    ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX, 355, (shootSprite.width)/3, shootSprite.height-110);
+    ctx.drawImage( shootSprite, 0, 0, (shootSprite.width)/2 - 30, shootSprite.height, BotX, 355, BotWidth, BotHeight-20);
     currShooting=false;
     justShotThird=true;
   }
@@ -829,10 +851,24 @@ function ShowGenjiHealth(){
     ctx.fillRect(20, 35, healthBarWidth, healthBarHeight);
 }
 
+var BotKilled = false;
+var BotAttacked = false;
+
 function checkBotExplosion(){
   if(BotX<=genjiX+100 && BotX>=genjiX+45){
+    bulletsMoving=false;
     exploding=true;
+    explosionSite=genjiX+40;
     BotX=1100+Math.random() * 100;
+    bulletsMoving = false;
+    BotAttacked=true;
+  }
+  else if(botHealth<=0){
+    exploding=true;
+    explosionSite = BotX;
+    BotWidth=0;
+    bulletsMoving = false;
+    BotKilled=true;
   }
 }
 
@@ -844,14 +880,19 @@ var ExplosionWidth = 128;
 var ExplosionHeight = 128;
 var currExplosionImage = 0;
 var exploding = false;
+var explosionSite;
 
 function BotExplosion(){
   if(exploding==true){
-    if(currExplosionImage==6){
+    if(currExplosionImage==2 && BotAttacked){
       genjiHealth-=75;
       healthBarWidth-=75;
     }
-    ctx.drawImage(explosion, ExplosionWidth*explosionCol, ExplosionHeight*explosionRow, ExplosionWidth, ExplosionHeight, genjiX+40, 370, 180, 180);
+    if(currExplosionImage>=9){
+      BotAttacked=false;
+      BotKilled=false;
+    }
+    ctx.drawImage(explosion, ExplosionWidth*explosionCol, ExplosionHeight*explosionRow, ExplosionWidth, ExplosionHeight, explosionSite, 370, 180, 180);
 
   if(explosionCol<3){
     explosionCol++;
@@ -866,9 +907,36 @@ function BotExplosion(){
     explosionRow = 0;
     explosionCol = 0;
     currExplosionImage=0;
+    BotX=1100+Math.random() * 100;
+    botHealth=300;
+    BotHealthBarWidth=300;
+    BotWidth = 170;
   }
   }
 }
+
+var botHealth = 300;
+BotHealthBarWidth = 300;
+BotHealthBarHeight = 40;
+function ShowBotHealth(){
+  if(botHealth>=250)
+    ctx.fillStyle = "Chartreuse";
+  else if(botHealth<250 && botHealth>=200)
+    ctx.fillStyle = "GreenYellow";
+  else if(botHealth<200 && botHealth>=150)
+    ctx.fillStyle = "orange";
+  else if(botHealth<150 && botHealth>=100)
+    ctx.fillStyle = "DarkOrange";
+  else if(botHealth<100 && botHealth>=50)
+    ctx.fillStyle = "Crimson";
+  else if(botHealth<50)
+    ctx.fillStyle = "OrangeRed";
+  if(botHealth>0)
+
+  if(botHealth>0)
+    ctx.fillRect(980, 35, -BotHealthBarWidth, BotHealthBarHeight);
+}
+
 </script>
 
 </body>
