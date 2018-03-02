@@ -249,37 +249,46 @@ function drawJump() {
     }
     if(currJumpImage==1){
       genjiY-=40;
+      genjiX+=4;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==2){
       genjiY-=50;
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==3){
       genjiY-=40;
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==4){
       genjiY-=40;
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if (currJumpImage==5){
       genjiY-=30;
+      genjiX+=4;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==6){
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==7){
       genjiY+=30
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==8){
       genjiY+=50;
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==9){
       genjiY+=90;
+      genjiX+=4;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
       genjiY+=30;
       JumpNow=false;
@@ -338,8 +347,8 @@ function drawScore(){
 
 //ANIMATE ALL
 function animateAll(){
-  shootTimer();
-
+  if(BotX<1000)
+    shootTimer();
   //TRAP
   if(stuck==true){
   movingRight=false;
@@ -397,7 +406,7 @@ if(bulletsOnScreen && bulletsMoving){
   }
   bulletHitReset();
   if(acting==true){
-  if(movingRight==true && runningRight==true && JumpNow==false){
+  if(movingRight==true && runningRight==true && JumpNow==false && DashOn==false){
     drawRightRun();
     BotSpeed=scrollSpeed+3;
   }
@@ -421,6 +430,12 @@ if(bulletsOnScreen && bulletsMoving){
     if(bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20){
       bulletSpeed=-80;
     }
+  }
+  else if(DashOn==true && DeflectOn==false && JumpNow==false){
+    backgroundX-=60;
+    BotSpeed=80;
+    TrapX-=20;
+    drawDash();
   }
   }
   //IF NO CHARACTER MOVEMENT
@@ -584,6 +599,7 @@ var PointCounter = 0;
 
 function drawRightRun() {
   PointCounter++;
+  takingHealth++;
   stopped = false;
   if(genjiX>=250){
     genjiX-=10;
@@ -832,7 +848,7 @@ function drawTrap(){
   if(scrolling==true){
   TrapX-=(scrollSpeed+13);
 }
-  if( ((genjiX+GenjiImageWidth)<=(TrapX+115) && (genjiX+GenjiImageWidth)>=(TrapX+20)) && genjiY>=359){
+  if( ((genjiX+GenjiImageWidth)<=(TrapX+115) && (genjiX+GenjiImageWidth)>=(TrapX+20)) && genjiY>=355 && DashOn==false){
     stuckCounter++;
     stuck=true;
     genjiHealth-=3;
@@ -882,7 +898,7 @@ var bulletsOnScreen = true;
 var bulletSpeed = 80;
 
 function drawBullets(){
-  if(bulletsOnScreen==true && BotRunning==true && stuck==false){
+  if(bulletsOnScreen==true && BotRunning==true){
   bulletsMoving=true;
   bullet1X-=bulletSpeed;
   bullet2X-=bulletSpeed;
@@ -953,13 +969,15 @@ var BotKilled = false;
 var BotAttacked = false;
 
 function checkBotExplosion(){
-  if(BotX<=genjiX+100 && BotX>=genjiX+45){
+  if(BotX<=genjiX+150 && BotX>=genjiX+45){
     bulletsMoving=false;
     exploding=true;
     explosionSite=genjiX+40;
-    BotX=1100+Math.random() * 150;
+    BotX=1300+Math.random() * 250;
     bulletsMoving = false;
-    BotAttacked=true;
+    if(DashOn==false){
+      BotAttacked=true;
+    }
     resetBulletPos();
     reset=true;
   }
