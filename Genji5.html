@@ -63,7 +63,7 @@ var currDeflectImage = 0;
 var currShurikenImage = 0;
 
 //GENJI VARIABLES
-var genjiX = 230;
+var genjiX = 180;
 var genjiY = 365;
 currRightRunCol = 0;
 currLeftRunCol = 4; 
@@ -323,17 +323,22 @@ if(bulletsOnScreen && bulletsMoving){
   drawBullets();
 }
 shootTimer();
+
+//CHECK BOT EXPLOSION
+  checkBotExplosion();
+  if(exploding==true){
+    BotExplosion();
+  }
   //DRAWING BOT
   if(BotRunning==true){
-    if(currShooting==false)
+    if(currShooting==false && (BotX>=genjiX+GenjiImageWidth))
       drawBot();
-    else if(currentlyThrowing==false && ThrowOn==false){
+    else if(currentlyThrowing==false && ThrowOn==false && BotX-genjiX>=200){
       DrawShooting();
     }
     else
       drawBot();
   }
-  // alert(JumpNow + ' ' + acting);
   //KEEP TRACK OF BULLETS
   if(bulletsMoving==false){
      bullet1X = BotX;
@@ -372,25 +377,27 @@ shootTimer();
   else{
       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
  }
+ BotExplosion();
  ShowGenjiHealth();
 }
 
 function bulletHitReset(){
-  if(DeflectOn==false && (bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20) ){
+  if(DeflectOn==false && (bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20) && bulletsMoving==true){
         resetBulletPos();
         genjiHealth-=25;
+        healthBarWidth-=25;
   }
 }
   
-var shootTime = -1;
+var shootTime = 0;
 function shootTimer(){
-  if(bulletsOnScreen && bulletsMoving==false){
+  if(BotRunning && (BotX-genjiX>=200)){
   shootTime++;
-  if(shootTime%6==0){
-    if(BotRunning){
+  if(shootTime%15==0){
       currShooting=true;
-    }
   }
+  }
+  else if(BotX-genjiX<=100){
   }
 }
 
@@ -645,7 +652,6 @@ function clearMovingBackground() {
   }
 
 function drawThrow() {
-
   var currRow = Math.floor(currShurikenImage / numbCols);
   var currCol = currShurikenImage % numbCols;
 
@@ -709,7 +715,7 @@ function Deflect() {
 
 var BotX = 1000;
 var BotY = genjiY;
-var BotSpeed = scrollSpeed;
+var BotSpeed = scrollSpeed-2;
 function drawBot(){
   BotX=BotX-BotSpeed;
   ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, 355, trainingBot.width-75, trainingBot.height-75);
@@ -803,14 +809,66 @@ function CheckBulletsAfterDeflect(){
     resetBulletPos();
 }
 
-var genjiHealth = 100;
-healthBarWidth = 100;
-healthBarHeight = 30;
+var genjiHealth = 300;
+healthBarWidth = 300;
+healthBarHeight = 40;
 function ShowGenjiHealth(){
-  ctx.fillStyle = "red";
-  ctx.fillRect(0, 0, healthBarWidth, healthBarHeight);
+  if(genjiHealth>=250)
+    ctx.fillStyle = "Chartreuse";
+  else if(genjiHealth<250 && genjiHealth>=200)
+    ctx.fillStyle = "GreenYellow";
+  else if(genjiHealth<200 && genjiHealth>=150)
+    ctx.fillStyle = "orange";
+  else if(genjiHealth<150 && genjiHealth>=100)
+    ctx.fillStyle = "DarkOrange";
+  else if(genjiHealth<100 && genjiHealth>=50)
+    ctx.fillStyle = "Crimson";
+  else if(genjiHealth<50)
+    ctx.fillStyle = "OrangeRed";
+  if(genjiHealth>0)
+    ctx.fillRect(20, 35, healthBarWidth, healthBarHeight);
 }
 
+function checkBotExplosion(){
+  if(BotX<=genjiX+100 && BotX>=genjiX+45){
+    exploding=true;
+    BotX=1100+Math.random() * 100;
+  }
+}
+
+var explosion = new Image();
+explosion.src = "ExplosionSheet.png";
+var explosionRow = 0;
+var explosionCol = 0;
+var ExplosionWidth = 128;
+var ExplosionHeight = 128;
+var currExplosionImage = 0;
+var exploding = false;
+
+function BotExplosion(){
+  if(exploding==true){
+    if(currExplosionImage==6){
+      genjiHealth-=75;
+      healthBarWidth-=75;
+    }
+    ctx.drawImage(explosion, ExplosionWidth*explosionCol, ExplosionHeight*explosionRow, ExplosionWidth, ExplosionHeight, genjiX+40, 370, 180, 180);
+
+  if(explosionCol<3){
+    explosionCol++;
+  }
+  else{
+    explosionCol=0;
+    explosionRow++;
+  }
+  currExplosionImage++;
+  if(currExplosionImage>10){
+    exploding = false;
+    explosionRow = 0;
+    explosionCol = 0;
+    currExplosionImage=0;
+  }
+  }
+}
 </script>
 
 </body>
