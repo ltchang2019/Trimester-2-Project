@@ -229,7 +229,12 @@ function drawDash() {
     if(dKeyDown==true){
       movingRight=true;
     }
-    ctx.drawImage( throwSheet, 0 , 0, 200, 204, genjiX-10, genjiY, 200, 204 );
+    else{
+      ctx.drawImage( throwSheet, 0 , 0, 200, 204, genjiX-10, genjiY, 200, 204 );
+      movingRight=false;
+      acting=false;
+      BotSpeed=scrollSpeed;
+    }
     clearInterval(toggleRun);
     currRightDashImage=1;
     currRightDashCol=0;
@@ -431,11 +436,11 @@ if(bulletsOnScreen && bulletsMoving){
       bulletSpeed=-80;
     }
   }
-  else if(DashOn==true && DeflectOn==false && JumpNow==false){
+  else if(DashOn==true && DeflectOn==false && JumpNow==false && ThrowOn==false){
+    drawDash();
     backgroundX-=60;
     BotSpeed=80;
     TrapX-=20;
-    drawDash();
   }
   }
   //IF NO CHARACTER MOVEMENT
@@ -445,7 +450,7 @@ if(bulletsOnScreen && bulletsMoving){
           ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
           if(stuckCounter%15==0){
           stuck=false;
-          genjiX+=70;
+          genjiX+=90;
           movingRight=true;
         }
         stuckCounter++;
@@ -848,7 +853,7 @@ function drawTrap(){
   if(scrolling==true){
   TrapX-=(scrollSpeed+13);
 }
-  if( ((genjiX+GenjiImageWidth)<=(TrapX+115) && (genjiX+GenjiImageWidth)>=(TrapX+20)) && genjiY>=355 && DashOn==false){
+  if( ((genjiX+GenjiImageWidth)<=(TrapX+120) && (genjiX+GenjiImageWidth)>=(TrapX+20)) && genjiY>=355 && DashOn==false){
     stuckCounter++;
     stuck=true;
     genjiHealth-=3;
@@ -933,10 +938,10 @@ function CheckBulletsAfterDeflect(){
   if(bulletSpeed==-80 && (bullet1X>=BotX && bullet1X<=BotX+trainingBot.width)){
     resetBulletPos();
     reset=true;
-    botHealth-=90;
+    botHealth-=100;
     losingHealth=false;
-    PointCounter+=90;
-    BotHealthBarWidth-=90;
+    PointCounter+=100;
+    BotHealthBarWidth-=100;
 }
 }
 
