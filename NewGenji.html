@@ -199,8 +199,9 @@ function drawDash() {
     else if (currRightDashImage==5){
        ctx.drawImage( dashRightSheet, 0 , 1*DashHeight+10, 200, 140, genjiX+2, genjiY - 50, DashWidth + 20, DashHeight + 100);
     }
-    else
+    else{
     ctx.drawImage( dashRightSheet, currRightDashCol*DashWidth , 0, DashWidth+ 20, 140, genjiX, genjiY, DashWidth, DashHeight + 80);
+    }
       currRightDashCol++;
       currRightDashImage++;
     }
@@ -455,9 +456,11 @@ function animateAll(){
       cycleCount=0;
     }
   if(DashOn==true){
+    clearRunningBackground();
     drawDash();
-    backgroundX -=20;
-    genjiX+=60;
+    scrollSpeed=100;
+    alert();
+    // genjiX+=60;
     Dashed=true;
     if(drawingBot==true){
        BotSpeed=22;
@@ -568,7 +571,7 @@ function handleKey(event) {
     stopped=false;
     if(dashAble==true){
     clearInterval(toggleAnimate);
-    animateSpeed = 30;
+    animateSpeed = 40;
     animationInterval();
     DashOn=true;
     Dashed=true;

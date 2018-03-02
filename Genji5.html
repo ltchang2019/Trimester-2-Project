@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html>
 <style>canvas { border: 2px solid red; background-color: green;} </style>
 <body>
@@ -7,6 +8,7 @@
 <p id="demo"></p>
 
 <script>
+
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
 
@@ -21,6 +23,22 @@ dashRightSheet.src = "dashRight.png";
 //TRAINING BOT
 var trainingBot = new Image();
 trainingBot.src = "TrainingBot.png";
+
+// //SOUNDS
+// var ShurikenSound;
+// // ShurikenSound = new sound("ShurikenNoise.mp3");
+
+// function sound(src) {
+//     this.sound = document.createElement("audio");
+//     this.sound.src = src;
+//     this.sound.setAttribute("preload", "auto");
+//     this.sound.setAttribute("controls", "none");
+//     this.sound.style.display = "none";
+//     document.body.appendChild(this.sound);
+//     this.play = function(){
+//         this.sound.play();
+//     }
+// }
 
 //DASH VARIABLES
 var numbRightDashImages = 5;
@@ -136,7 +154,7 @@ document.body.onkeyup = function(e){
       currRightRunCol=0;
       if(JumpNow==false)
         acting=false;
-      BotSpeed=scrollSpeed;
+      BotSpeed=scrollSpeed+3;
     }
 }
 
@@ -230,40 +248,40 @@ function drawJump() {
       currJumpCol=0;
     }
     if(currJumpImage==1){
-      genjiY-=30;
+      genjiY-=40;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==2){
-      genjiY-=40;
+      genjiY-=50;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==3){
-      genjiY-=30;
+      genjiY-=40;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==4){
-      genjiY-=30;
+      genjiY-=40;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY+4, JumpImageWidth, JumpImageHeight );
     }
     else if (currJumpImage==5){
-      genjiY-=20;
+      genjiY-=30;
        ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY-4, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==6){
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==7){
-      genjiY+=20
+      genjiY+=30
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==8){
-      genjiY+=40;
+      genjiY+=50;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
     }
     else if(currJumpImage==9){
-      genjiY+=70;
+      genjiY+=90;
       ctx.drawImage( jumpSheet, currJumpCol*JumpImageWidth , currJumpRow*JumpImageHeight, JumpImageWidth, JumpImageHeight, genjiX, genjiY, JumpImageWidth, JumpImageHeight );
-      genjiY+=20;
+      genjiY+=30;
       JumpNow=false;
       acting=false;
       scrollSpeed=7;
@@ -306,8 +324,29 @@ var currShooting = false;
 var movingRight = false;
 var acting = false;
 
+var losingHealth = false;
+var takingHealth = false;
+
+function drawScore(){
+  if(losingHealth)
+    ctx.fillStyle = "OrangeRed";
+  else if(losingHealth==false)
+    ctx.fillStyle = "Chartreuse";
+  ctx.font = "30px Arial";
+  ctx.fillText(PointCounter, 478, 65);
+}
+
 //ANIMATE ALL
 function animateAll(){
+  shootTimer();
+
+  //TRAP
+  if(stuck==true){
+  movingRight=false;
+  acting=false;
+  }
+  resetTrap();
+
   scrollSpeed=7;
   //BACKGROUND CLEARING
   if(movingRight==true){
@@ -319,20 +358,24 @@ function animateAll(){
     scrolling=false;
     clearStaticBackground();
   }
+//TRAP 
+if(DrawingTrap==true){
+  drawTrap();
+}
 
 //MOVING BULLETS AND SHOOTING ANIMATION
 if(bulletsOnScreen && bulletsMoving){
   drawBullets();
 }
-shootTimer();
 
 //CHECK BOT EXPLOSION
-  checkBotExplosion();
-  if(exploding==true){
-    BotExplosion();
-  }
+  
   //DRAWING BOT
   if(BotRunning==true){
+    checkBotExplosion();
+      if(exploding==true){
+        BotExplosion();
+    }
      ShowBotHealth();
      ShurikensHit();
     if(currShooting==false && (BotX>=genjiX+GenjiImageWidth))
@@ -376,30 +419,51 @@ shootTimer();
   else if(DeflectOn && JumpNow==false){
     Deflect();
     if(bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20){
-      bulletSpeed=-90;
+      bulletSpeed=-80;
     }
   }
   }
   //IF NO CHARACTER MOVEMENT
   else{
       ctx.drawImage( throwSheet, 0 , 0, ThrowimageWidth, ThrowimageHeight, genjiX, genjiY, ThrowimageWidth, ThrowimageHeight );
+      if(stuck==true){
+          ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+          if(stuckCounter%15==0){
+          stuck=false;
+          genjiX+=70;
+          movingRight=true;
+        }
+        stuckCounter++;
+    }
  }
  ShowGenjiHealth();
+ drawScore();
+
 }
 
+var reset = true;
+
 function bulletHitReset(){
-  if(DeflectOn==false && (bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20) && bulletsMoving==true){
+  if(DeflectOn==false && (bullet1X<=genjiX+GenjiImageWidth && bullet1X>=genjiX+20) && bulletsMoving==true && genjiY>=280){
         resetBulletPos();
+        reset=true;
         genjiHealth-=25;
         healthBarWidth-=25;
+        losingHealth=true;
+        PointCounter-=25;
   }
+  else if(bullet1X<=0){
+    resetBulletPos();
+    reset=true;
+  }
+
 }
   
 var shootTime = 0;
 function shootTimer(){
-  if(BotRunning && (BotX-genjiX>=200) && DeflectOn==false && ThrowOn==false){
+  if(BotRunning && (BotX-genjiX>=200) && DeflectOn==false && ThrowOn==false && reset==true){
   shootTime++;
-  if(shootTime%20==0){
+  if(shootTime%16==0){
       currShooting=true;
   }
   }
@@ -438,13 +502,17 @@ function handleKey(event) {
   }
   //MOVE RIGHT
   if(key == 'd') {
+    if(DeflectOn==false){
     acting=true;
     dKeyDown=true;
     JustDashed=false;
-    if(ThrowOn!=true){
+    if(ThrowOn!=true && DeflectOn==false){
      animateSpeed=80;
      movingRight=true;
      runningRight=true;
+   }
+   else if(ThrowOn==true){
+   }
     }
   }
 
@@ -464,12 +532,14 @@ function handleKey(event) {
   if(key == ' '){
       acting=true;
       JustDashed=false;
-      if(ThrowOn==false && cycleCount<2 && JumpNow==false){
+      if(ThrowOn==false && cycleCount<2 && JumpNow==false && stuck==false){
+      // ShurikenSound.play();
       clearInterval(toggleAnimate);
       animateSpeed = 40;
       animationInterval();
       ThrowOn=true; 
       movingRight=false;
+      DeflectOn=false;
     }
     }
   if(key == 'q'){
@@ -498,14 +568,22 @@ function handleKey(event) {
     stopped=true;
 }
 
+function resetTrap(){
+  if(TrapX<0){
+    TrapX=1200 + Math.random() * 150;
+    DrawingTrap=true;
+  }
+}
 
 function startShooting(){
   currShooting=true;
   bulletsOnScreen=true;
 }
 
+var PointCounter = 0;
 
 function drawRightRun() {
+  PointCounter++;
   stopped = false;
   if(genjiX>=250){
     genjiX-=10;
@@ -545,8 +623,10 @@ function drawRightRun() {
 
 function ShurikensHit(){
   if(AHitTarget==true){
-    botHealth-=15;
-    BotHealthBarWidth-=15;
+    botHealth-=12;
+    losingHealth=false;
+    PointCounter+=2;
+    BotHealthBarWidth-=12;
   }
 }
 
@@ -602,7 +682,7 @@ if(xC< xRealA + widthA/2 || CHitTarget==true){
   ctx.drawImage(shuriken2,-widthC/2, -heightC/2, widthC, heightC);
   ctx.restore();
 
-if(xC>=800+genjiX){
+if(xC>=1200+genjiX){
   currentlyThrowing=false;
   ThrowOn=false;
   clearInterval(toggleAnimate);
@@ -612,7 +692,7 @@ if(xC>=800+genjiX){
   acting=false;
 }
 
-if(xC<800+genjiX){
+if(xC<1200+genjiX){
   currentlyThrowing=true;
   ThrowOn=true;
 }
@@ -654,7 +734,7 @@ function clearStaticBackground(){
   ctx.drawImage(canvasBackground, 0-backgroundX, 0, RunFrameWidth, RunFrameHeight, 0, 0, 1000, 1300); 
 }
 
-var scrollSpeed = 7;
+var scrollSpeed = 8;
 var scrolling = false;
 
 function clearMovingBackground() {
@@ -719,7 +799,6 @@ function Deflect() {
 
     else {
       SheathBlade();
-      clearInterval(toggleDeflect);
       DeflectOn=false;
       currDeflectImage=-1;
       acting=false;
@@ -729,7 +808,7 @@ function Deflect() {
 
 var BotX = 1000;
 var BotY = genjiY;
-var BotSpeed = scrollSpeed;
+var BotSpeed = scrollSpeed+3;
 var BotWidth = 170;
 var BotHeight = 220;
 function drawBot(){
@@ -737,7 +816,7 @@ function drawBot(){
   ctx.drawImage( trainingBot, 0, 0, trainingBot.width, trainingBot.height, BotX, 355, BotWidth, BotHeight);
 }
 
-var TrapX = 1020;
+var TrapX = 1300;
 var TrapY = 470;
 var TrapSpeed = scrollSpeed;
 var DrawingTrap=false;
@@ -753,19 +832,25 @@ function drawTrap(){
   if(scrolling==true){
   TrapX-=(scrollSpeed+13);
 }
-  if( ((genjiX+35)<=TrapX && (genjiX+60)>=(TrapX)) && genjiY==365){
+  if( ((genjiX+GenjiImageWidth)<=(TrapX+115) && (genjiX+GenjiImageWidth)>=(TrapX+20)) && genjiY>=359){
     stuckCounter++;
     stuck=true;
+    genjiHealth-=3;
+    healthBarWidth-=3;
+    losingHealth=true;
+    PointCounter-=2;
     ctx.drawImage( closedTrap, 330, 360, 600, 270, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
   }
-  else
+  else{
   ctx.drawImage( openTrap, 0, 0, openTrap.width, openTrap.height, TrapX, TrapY, openTrap.width-180, openTrap.height-120);
+}
 }
 
 var shootingCounter = 0;
 var justShotThird = false;
 
 function DrawShooting(){
+  reset = false;
   if(BotX<1100){
   bulletsMoving=true;
   bulletsOnScreen=true;
@@ -794,7 +879,7 @@ var bullet2X = BotX+60;
 var bullet3X = BotX+120;
 var bulletsMoving = false;
 var bulletsOnScreen = true;
-var bulletSpeed = 90;
+var bulletSpeed = 80;
 
 function drawBullets(){
   if(bulletsOnScreen==true && BotRunning==true && stuck==false){
@@ -811,6 +896,7 @@ function drawBullets(){
 
   if(bulletsMoving==false || bullet3X<-20-BotX){
      resetBulletPos();
+     reset=true;
   }
   CheckBulletsAfterDeflect();
 }
@@ -823,12 +909,19 @@ function resetBulletPos(){
   bulletsOnScreen=true;
   bulletsMoving=false;
   shootingCounter=0;
-  bulletSpeed=90;
+  bulletSpeed=80;
+  reset=true;
 }
 
 function CheckBulletsAfterDeflect(){
-  if(bulletSpeed==-90 && (bullet1X>=BotX && bullet1X<=BotX+trainingBot.width))
+  if(bulletSpeed==-80 && (bullet1X>=BotX && bullet1X<=BotX+trainingBot.width)){
     resetBulletPos();
+    reset=true;
+    botHealth-=90;
+    losingHealth=false;
+    PointCounter+=90;
+    BotHealthBarWidth-=90;
+}
 }
 
 var genjiHealth = 300;
@@ -849,7 +942,12 @@ function ShowGenjiHealth(){
     ctx.fillStyle = "OrangeRed";
   if(genjiHealth>0)
     ctx.fillRect(20, 35, healthBarWidth, healthBarHeight);
-}
+  else{
+     alert("GAME OVER");
+    document.location.reload();
+  }
+  }
+
 
 var BotKilled = false;
 var BotAttacked = false;
@@ -859,9 +957,11 @@ function checkBotExplosion(){
     bulletsMoving=false;
     exploding=true;
     explosionSite=genjiX+40;
-    BotX=1100+Math.random() * 100;
+    BotX=1100+Math.random() * 150;
     bulletsMoving = false;
     BotAttacked=true;
+    resetBulletPos();
+    reset=true;
   }
   else if(botHealth<=0){
     exploding=true;
@@ -869,6 +969,10 @@ function checkBotExplosion(){
     BotWidth=0;
     bulletsMoving = false;
     BotKilled=true;
+    resetBulletPos();
+    reset=true;
+    PointCounter+=20;
+    losingHealth=false;
   }
 }
 
@@ -887,6 +991,8 @@ function BotExplosion(){
     if(currExplosionImage==2 && BotAttacked){
       genjiHealth-=75;
       healthBarWidth-=75;
+      PointCounter-=10;
+      losingHealth=true;
     }
     if(currExplosionImage>=9){
       BotAttacked=false;
